@@ -6,257 +6,111 @@
   <title>MX Coach Dashboard</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #f8f8f6;
-      --bg2: #ffffff;
-      --bg3: #f2f2f0;
-      --card: #ffffff;
-      --border: rgba(0,0,0,0.08);
-      --border2: rgba(0,0,0,0.14);
-      --text: #1a1a1a;
-      --text2: #666;
-      --text3: #999;
-      --orange: #f97316;
-      --orange-dim: rgba(249,115,22,0.10);
-      --green: #16a34a;
-      --green-dim: rgba(22,163,74,0.10);
-      --blue: #2563eb;
-      --blue-dim: rgba(37,99,235,0.10);
-      --purple: #7c3aed;
-      --purple-dim: rgba(124,58,237,0.10);
-      --teal: #0d9488;
-      --teal-dim: rgba(13,148,136,0.10);
-      --red: #dc2626;
-      --radius: 12px;
-      --radius-sm: 8px;
+      --bg: #f8f8f6; --bg2: #ffffff; --bg3: #f2f2f0; --card: #ffffff;
+      --border: rgba(0,0,0,0.08); --border2: rgba(0,0,0,0.14);
+      --text: #1a1a1a; --text2: #666; --text3: #999;
+      --orange: #f97316; --orange-dim: rgba(249,115,22,0.10);
+      --green: #16a34a; --green-dim: rgba(22,163,74,0.10);
+      --blue: #2563eb; --blue-dim: rgba(37,99,235,0.10);
+      --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.10);
+      --teal: #0d9488; --teal-dim: rgba(13,148,136,0.10);
+      --red: #dc2626; --radius: 12px; --radius-sm: 8px;
       --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      font-size: 14px;
-      line-height: 1.5;
-      min-height: 100vh;
-    }
-
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
     .app { display: flex; min-height: 100vh; }
 
-    /* ── SIDEBAR ── */
-    .sidebar {
-      width: 220px;
-      flex-shrink: 0;
-      background: #fff;
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      padding: 20px 0;
-      position: fixed;
-      top: 0; left: 0; bottom: 0;
-      z-index: 100;
-      box-shadow: var(--shadow);
-    }
-    .sidebar-logo {
-      padding: 0 20px 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 12px;
-    }
+    /* SIDEBAR */
+    .sidebar { width: 220px; flex-shrink: 0; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 20px 0; position: fixed; top: 0; left: 0; bottom: 0; z-index: 100; box-shadow: var(--shadow); }
+    .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
     .sidebar-logo h1 { font-size: 16px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
     .sidebar-logo .sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-
-    .garmin-btn-sidebar {
-      display: flex; align-items: center; gap: 8px;
-      margin: 0 12px 16px;
-      padding: 9px 12px;
-      border-radius: var(--radius-sm);
-      border: 1.5px solid var(--teal);
-      background: var(--teal-dim);
-      color: var(--teal);
-      font-size: 12px; font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s;
+    .garmin-pill {
+      display: flex; align-items: center; gap: 7px;
+      margin: 0 12px 14px; padding: 8px 12px;
+      border-radius: var(--radius-sm); border: 1.5px solid var(--teal);
+      background: var(--teal-dim); color: var(--teal);
+      font-size: 11px; font-weight: 700; cursor: pointer;
     }
-    .garmin-btn-sidebar:hover { background: rgba(13,148,136,0.18); }
-    .garmin-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
-    .garmin-dot.disconnected { background: var(--text3); }
-    .garmin-dot.connected { animation: pulse 2s infinite; }
+    .garmin-pill:hover { background: rgba(13,148,136,0.18); }
+    .gdot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+    .gdot.on { animation: pulse 2s infinite; }
+    .gdot.off { background: #ccc; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
     .nav-section { padding: 0 12px; margin-bottom: 6px; }
     .nav-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; padding: 0 8px; margin-bottom: 4px; }
-    .nav-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 10px; border-radius: var(--radius-sm);
-      cursor: pointer; font-size: 13px; color: var(--text2);
-      transition: background 0.15s, color 0.15s;
-      border: none; background: none; width: 100%; text-align: left;
-    }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; color: var(--text2); border: none; background: none; width: 100%; text-align: left; transition: background 0.15s, color 0.15s; }
     .nav-item:hover { background: var(--bg3); color: var(--text); }
     .nav-item.active { background: var(--orange-dim); color: var(--orange); font-weight: 600; }
     .nav-item .icon { width: 18px; text-align: center; font-size: 15px; }
     .nav-badge { margin-left: auto; font-size: 10px; background: var(--orange); color: #fff; border-radius: 99px; padding: 1px 6px; }
+    .sync-info { margin-top: auto; padding: 14px 20px 0; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); }
+    .sync-info span { display: block; font-size: 12px; color: var(--text2); margin-top: 2px; }
 
+    /* MAIN */
     .main { margin-left: 220px; flex: 1; padding: 28px; max-width: 1100px; }
-
-    /* ── HEADER ── */
-    .page-header {
-      display: flex; align-items: flex-start; justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .page-header h2 { font-size: 22px; font-weight: 700; color: var(--text); }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; }
+    .page-header h2 { font-size: 22px; font-weight: 700; }
     .page-header .sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
-    .sync-btn {
-      display: flex; align-items: center; gap: 8px;
-      background: #fff; border: 1px solid var(--border2);
-      color: var(--text); padding: 8px 16px;
-      border-radius: var(--radius-sm); cursor: pointer; font-size: 13px;
-      box-shadow: var(--shadow); transition: background 0.15s;
-    }
+    .sync-btn { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid var(--border2); color: var(--text); padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 13px; box-shadow: var(--shadow); }
     .sync-btn:hover { background: var(--bg3); }
 
-    /* ── CARDS ── */
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-    }
+    /* CARDS */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
     .card-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px; }
-    .card-val { font-size: 28px; font-weight: 700; line-height: 1; color: var(--text); }
+    .card-val { font-size: 28px; font-weight: 700; line-height: 1; }
     .card-sub { font-size: 12px; color: var(--text2); margin-top: 5px; }
-
     .grid4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 16px; }
     .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
     .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 
-    /* ── BADGES ── */
     .badge { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: 600; }
     .badge-green { background: var(--green-dim); color: var(--green); }
     .badge-orange { background: var(--orange-dim); color: var(--orange); }
     .badge-blue { background: var(--blue-dim); color: var(--blue); }
     .badge-teal { background: var(--teal-dim); color: var(--teal); }
+    .badge-red { background: rgba(220,38,38,0.1); color: var(--red); }
 
-    /* ── PROGRESS ── */
     .progress-bar { height: 5px; background: var(--bg3); border-radius: 3px; margin-top: 10px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
 
-    /* ── TIP ── */
-    .tip {
-      border-radius: var(--radius-sm); padding: 12px 14px;
-      font-size: 12px; display: flex; gap: 10px; align-items: flex-start;
-      margin-bottom: 12px;
-    }
+    .tip { border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px; }
     .tip-orange { background: var(--orange-dim); border: 1px solid rgba(249,115,22,0.2); color: #9a3412; }
     .tip-blue { background: var(--blue-dim); border: 1px solid rgba(37,99,235,0.2); color: #1e3a8a; }
     .tip-teal { background: var(--teal-dim); border: 1px solid rgba(13,148,136,0.2); color: #134e4a; }
     .tip-green { background: var(--green-dim); border: 1px solid rgba(22,163,74,0.2); color: #14532d; }
+    .tip-red { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: #7f1d1d; }
 
-    /* ── GARMIN KOPPEL BANNER ── */
-    .garmin-connect-banner {
-      background: #fff;
-      border: 1.5px solid var(--teal);
-      border-radius: var(--radius);
-      padding: 20px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: var(--shadow);
-    }
-    .garmin-logo { font-size: 32px; }
-    .garmin-info { flex: 1; }
-    .garmin-info h3 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
-    .garmin-info p { font-size: 12px; color: var(--text2); }
-    .garmin-connect-btn {
-      background: var(--teal);
-      color: #fff;
-      border: none;
-      border-radius: var(--radius-sm);
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s;
-      white-space: nowrap;
-    }
-    .garmin-connect-btn:hover { background: #0f766e; }
-    .garmin-connected-strip {
-      background: var(--teal-dim);
-      border: 1px solid rgba(13,148,136,0.25);
-      border-radius: var(--radius);
-      padding: 14px 18px;
-      margin-bottom: 16px;
+    /* GARMIN LIVE STRIP */
+    .garmin-strip {
+      background: #fff; border: 1.5px solid var(--teal); border-radius: var(--radius);
+      padding: 14px 18px; margin-bottom: 16px; box-shadow: var(--shadow);
       display: none;
     }
-    .garmin-connected-strip.visible { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .garmin-stat { text-align: center; flex: 1; min-width: 80px; }
-    .garmin-stat .val { font-size: 20px; font-weight: 700; color: var(--text); }
-    .garmin-stat .lbl { font-size: 10px; color: var(--text2); margin-top: 2px; }
+    .garmin-strip.visible { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .garmin-strip-hdr { display: flex; align-items: center; gap: 8px; margin-right: 12px; flex-shrink: 0; }
+    .garmin-strip-hdr span { font-size: 11px; font-weight: 700; color: var(--teal); }
+    .gstat { text-align: center; flex: 1; min-width: 70px; }
+    .gstat .v { font-size: 20px; font-weight: 700; color: var(--text); }
+    .gstat .l { font-size: 10px; color: var(--text2); margin-top: 2px; }
 
-    /* ── GARMIN MODAL ── */
-    .modal-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-    .modal-overlay.open { display: flex; }
-    .modal {
-      background: #fff;
-      border-radius: var(--radius);
-      padding: 28px;
-      max-width: 420px;
-      width: 90%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      position: relative;
-    }
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      background: none; border: none; font-size: 20px;
-      cursor: pointer; color: var(--text3); line-height: 1;
-    }
-    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
-    .modal .sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
-    .modal-field { margin-bottom: 14px; }
-    .modal-field label { font-size: 12px; font-weight: 600; color: var(--text2); display: block; margin-bottom: 5px; }
-    .modal-field input {
-      width: 100%; padding: 10px 12px;
-      border: 1px solid var(--border2);
-      border-radius: var(--radius-sm);
-      font-size: 14px; color: var(--text);
-      background: var(--bg);
-      outline: none;
-    }
-    .modal-field input:focus { border-color: var(--teal); }
-    .modal-submit {
-      width: 100%; background: var(--teal); color: #fff;
-      border: none; border-radius: var(--radius-sm);
-      padding: 12px; font-size: 14px; font-weight: 700;
-      cursor: pointer; margin-top: 6px;
-      transition: background 0.15s;
-    }
-    .modal-submit:hover { background: #0f766e; }
-    .modal-note { font-size: 11px; color: var(--text3); margin-top: 12px; text-align: center; line-height: 1.5; }
-    .modal-success { text-align: center; display: none; padding: 10px 0; }
-    .modal-success .icon { font-size: 40px; margin-bottom: 10px; }
-    .modal-success h4 { font-size: 16px; font-weight: 700; color: var(--green); margin-bottom: 6px; }
-    .modal-success p { font-size: 13px; color: var(--text2); }
+    /* GARMIN CONNECT BANNER */
+    .garmin-banner { background: #fff; border: 1.5px solid var(--teal); border-radius: var(--radius); padding: 20px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow); }
+    .garmin-banner-info h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .garmin-banner-info p { font-size: 12px; color: var(--text2); }
+    .garmin-banner { flex: 1; }
+    .connect-btn { background: var(--teal); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 20px; font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .connect-btn:hover { background: #0f766e; }
 
-    /* ── WEEK GRID ── */
+    /* LOADING */
+    .loading { display: flex; align-items: center; gap: 8px; padding: 16px; color: var(--text2); font-size: 13px; }
+    .spinner { width: 18px; height: 18px; border: 2px solid var(--border2); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* WEEK GRID */
     .week-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 8px; margin-bottom: 16px; }
-    .day-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 10px 6px;
-      text-align: center; cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
-      display: flex; flex-direction: column; align-items: center;
-      box-shadow: var(--shadow);
-    }
+    .day-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 6px; text-align: center; cursor: pointer; transition: box-shadow 0.15s; display: flex; flex-direction: column; align-items: center; box-shadow: var(--shadow); }
     .day-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .day-card.active { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(249,115,22,0.2); }
     .day-card.type-moto { border-top: 3px solid var(--orange); }
@@ -269,94 +123,51 @@
     .day-garmin { font-size: 9px; color: var(--teal); margin-top: 4px; }
     .done-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); margin: 6px auto 0; }
 
-    /* ── SESSIONS ── */
-    .session {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px;
-    }
+    /* SESSIONS */
+    .session { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 10px; }
     .session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .session-title { font-size: 13px; font-weight: 700; }
-    .ex-row {
-      display: flex; justify-content: space-between;
-      padding: 6px 0; border-bottom: 1px solid var(--border);
-      font-size: 12px;
-    }
+    .ex-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
     .ex-row:last-child { border-bottom: none; }
     .ex-name { color: var(--text); }
     .ex-val { color: var(--text2); }
 
-    /* ── WEIGHT ── */
-    .weight-row {
-      background: #fff; border: 1px solid var(--border);
-      border-radius: var(--radius-sm); padding: 14px;
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 16px; box-shadow: var(--shadow);
-    }
-    .weight-input {
-      width: 90px; text-align: center;
-      font-size: 20px; font-weight: 700;
-      background: var(--bg); border: 1px solid var(--border2);
-      border-radius: var(--radius-sm); padding: 8px;
-      color: var(--text);
-    }
+    /* WEIGHT */
+    .weight-row { background: #fff; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 16px; box-shadow: var(--shadow); }
+    .weight-input { width: 90px; text-align: center; font-size: 20px; font-weight: 700; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-sm); padding: 8px; color: var(--text); }
     .weight-input:focus { outline: none; border-color: var(--orange); }
-    .save-btn {
-      background: var(--orange); color: #fff; border: none;
-      border-radius: var(--radius-sm); padding: 9px 16px;
-      font-size: 13px; font-weight: 700; cursor: pointer;
-      transition: background 0.15s;
-    }
+    .save-btn { background: var(--orange); color: #fff; border: none; border-radius: var(--radius-sm); padding: 9px 16px; font-size: 13px; font-weight: 700; cursor: pointer; }
     .save-btn:hover { background: #ea6c0a; }
 
-    /* ── CHART ── */
     .mini-chart { display: flex; align-items: flex-end; gap: 4px; height: 48px; }
     .mini-bar { flex: 1; border-radius: 3px 3px 0 0; transition: height 0.3s; min-height: 4px; }
 
-    /* ── NUTRITION ── */
     .meal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
     .meal-card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; }
     .meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
     .meal-kcal { font-size: 11px; color: var(--orange); font-weight: 700; }
     .meal-item { font-size: 11px; color: var(--text2); padding: 2px 0; }
     .meal-macro { font-size: 10px; color: var(--blue); margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); }
-
-    /* ── MACRO BAR ── */
     .macro-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; margin: 8px 0; }
     .macro-seg { border-radius: 3px; }
 
-    /* ── GARMIN DATA ── */
-    .garmin-row {
-      display: flex; justify-content: space-between;
-      padding: 8px 0; border-bottom: 1px solid var(--border);
-      font-size: 12px;
-    }
-    .garmin-row:last-child { border-bottom: none; }
-    .garmin-key { color: var(--text2); }
-    .garmin-val { font-weight: 700; color: var(--text); }
+    .gdata-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .gdata-row:last-child { border-bottom: none; }
+    .gdata-key { color: var(--text2); }
+    .gdata-val { font-weight: 700; color: var(--text); }
 
-    /* ── LEGEND ── */
     .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
     .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text2); }
     .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
-
-    /* ── SECTION LABEL ── */
-    .section-label {
-      font-size: 11px; font-weight: 700; color: var(--text3);
-      text-transform: uppercase; letter-spacing: 0.08em;
-      margin: 20px 0 12px;
-    }
-
-    /* ── LOAD BARS ── */
+    .section-label { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 12px; }
     .load-bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
     .load-bar { width: 100%; border-radius: 3px 3px 0 0; }
     .load-label { font-size: 9px; color: var(--text3); }
 
-    /* ── PAGES ── */
     .page { display: none; }
     .page.active { display: block; animation: fadeIn 0.2s ease; }
     @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
 
-    /* ── MOBILE ── */
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main { margin-left: 0; padding: 16px; }
@@ -364,7 +175,6 @@
       .grid3 { grid-template-columns: repeat(2,1fr); }
       .week-grid { grid-template-columns: repeat(4,1fr); }
       .meal-grid { grid-template-columns: 1fr; }
-      .garmin-connect-banner { flex-direction: column; text-align: center; }
     }
   </style>
 </head>
@@ -377,84 +187,67 @@
       <h1>🏍️ MX Coach</h1>
       <div class="sub">Jouw motorcross dashboard</div>
     </div>
-
-    <button class="garmin-btn-sidebar" onclick="openGarminModal()" id="sidebarGarminBtn">
-      <div class="garmin-dot disconnected" id="sidebarDot"></div>
-      <span id="sidebarGarminTxt">Koppel Garmin</span>
-    </button>
-
+    <div class="garmin-pill" id="garminPill" onclick="nav('garmin',null)">
+      <div class="gdot off" id="gdot"></div>
+      <span id="garminPillTxt">Garmin laden...</span>
+    </div>
     <div class="nav-section">
       <div class="nav-label">Hoofd</div>
       <button class="nav-item active" onclick="nav('dashboard',this)"><span class="icon">📊</span> Dashboard</button>
       <button class="nav-item" onclick="nav('schema',this)"><span class="icon">🗓️</span> Trainingsschema <span class="nav-badge">Wo</span></button>
       <button class="nav-item" onclick="nav('voeding',this)"><span class="icon">🥗</span> Voeding</button>
     </div>
-
     <div class="nav-section" style="margin-top:8px">
       <div class="nav-label">Analyse</div>
       <button class="nav-item" onclick="nav('garmin',this)"><span class="icon">⌚</span> Garmin data</button>
       <button class="nav-item" onclick="nav('gewicht',this)"><span class="icon">⚖️</span> Gewicht</button>
       <button class="nav-item" onclick="nav('stats',this)"><span class="icon">📈</span> Stats</button>
     </div>
-
-    <div style="margin-top:auto; padding: 16px 20px 0; border-top: 1px solid var(--border)">
-      <div style="font-size:11px;color:var(--text3)">Laatste sync</div>
-      <div style="font-size:12px;color:var(--text2);margin-top:2px" id="syncTime">Niet gesynchroniseerd</div>
-    </div>
+    <div class="sync-info">Laatste sync<span id="syncTime">Laden...</span></div>
   </nav>
 
   <!-- MAIN -->
   <main class="main">
 
-    <!-- ════ DASHBOARD ════ -->
+    <!-- DASHBOARD -->
     <div class="page active" id="page-dashboard">
       <div class="page-header">
-        <div>
-          <h2>Overzicht</h2>
-          <div class="sub">Week 1 · Base fase · Wo 7 mei 2026</div>
-        </div>
-        <button class="sync-btn" onclick="doSync()">↻ Sync Garmin</button>
+        <div><h2>Overzicht</h2><div class="sub" id="todayDate">Week 1 · Base fase</div></div>
+        <button class="sync-btn" onclick="loadGarminData()">↻ Sync Garmin</button>
       </div>
 
-      <!-- Garmin koppel banner -->
-      <div class="garmin-connect-banner" id="garminBanner">
-        <div class="garmin-logo">⌚</div>
-        <div class="garmin-info">
-          <h3>Koppel je Garmin account</h3>
-          <p>Verbind je Garmin Connect account om live data te zien — slaap, HRV, Body Battery, stappen en trainingsdata rechtstreeks in je dashboard.</p>
+      <!-- Garmin live strip -->
+      <div class="garmin-strip" id="garminStrip">
+        <div class="garmin-strip-hdr">
+          <div class="gdot on"></div>
+          <span>Garmin Live</span>
         </div>
-        <button class="garmin-connect-btn" onclick="openGarminModal()">+ Koppel Garmin</button>
+        <div class="gstat"><div class="v" id="sBodyBat">—</div><div class="l">Body Battery</div></div>
+        <div class="gstat"><div class="v" id="sHRV">—</div><div class="l">HRV (ms)</div></div>
+        <div class="gstat"><div class="v" id="sRHR">—</div><div class="l">RHR (bpm)</div></div>
+        <div class="gstat"><div class="v" id="sSlaap">—</div><div class="l">Slaap</div></div>
+        <div class="gstat"><div class="v" id="sStappen">—</div><div class="l">Stappen</div></div>
+        <div class="gstat"><div class="v" id="sGewicht">—</div><div class="l">Gewicht (kg)</div></div>
       </div>
 
-      <!-- Garmin data strip (toont na koppeling) -->
-      <div class="garmin-connected-strip" id="garminStrip">
-        <div style="display:flex;align-items:center;gap:8px;margin-right:12px">
-          <div class="garmin-dot connected"></div>
-          <span style="font-size:11px;font-weight:700;color:var(--teal)">Garmin Live</span>
-        </div>
-        <div class="garmin-stat"><div class="val" style="color:var(--green)" id="gBodyBat">72</div><div class="lbl">Body Battery</div></div>
-        <div class="garmin-stat"><div class="val" id="gHRV">98</div><div class="lbl">HRV (ms)</div></div>
-        <div class="garmin-stat"><div class="val" id="gRHR">41</div><div class="lbl">RHR (bpm)</div></div>
-        <div class="garmin-stat"><div class="val" style="color:var(--orange)" id="gSlaap">6.2h</div><div class="lbl">Slaap</div></div>
-        <div class="garmin-stat"><div class="val" id="gStappen">6.2k</div><div class="lbl">Stappen</div></div>
-      </div>
+      <div id="dashLoading" class="loading"><div class="spinner"></div> Garmin data laden via Intervals.icu...</div>
 
-      <div class="grid4">
+      <div class="grid4" id="statsGrid" style="display:none">
         <div class="card">
-          <div class="card-label">💪 Herstel</div>
-          <div class="card-val" style="color:var(--green)">72</div>
-          <div class="card-sub">Goed · normale dag</div>
-          <div class="progress-bar"><div class="progress-fill" style="width:72%;background:var(--green)"></div></div>
+          <div class="card-label">💪 Body Battery</div>
+          <div class="card-val" id="dBodyBat" style="color:var(--green)">—</div>
+          <div class="card-sub" id="dBodyBatSub">Laden...</div>
+          <div class="progress-bar"><div class="progress-fill" id="dBodyBatBar" style="width:0%;background:var(--green)"></div></div>
         </div>
         <div class="card">
-          <div class="card-label">⚡ Vorm vandaag</div>
-          <div class="card-val" style="color:var(--orange)">−3</div>
-          <div class="card-sub">Licht vermoeid</div>
+          <div class="card-label">❤️ HRV score</div>
+          <div class="card-val" id="dHRV">—</div>
+          <div class="card-sub" id="dHRVsub">Laden...</div>
         </div>
         <div class="card">
           <div class="card-label">😴 Slaap</div>
-          <div class="card-val" style="color:var(--orange)">6.2h</div>
-          <div class="card-sub">Score: 59 · doel: 8h</div>
+          <div class="card-val" id="dSlaap" style="color:var(--orange)">—</div>
+          <div class="card-sub" id="dSlaapSub">Laden...</div>
         </div>
         <div class="card">
           <div class="card-label">⚖️ Gewicht</div>
@@ -474,16 +267,11 @@
 
       <div class="card" style="margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <div>
-            <div style="font-size:13px;font-weight:700">📉 Gewichtstrend</div>
-            <div style="font-size:11px;color:var(--text2);margin-top:2px">Doel: 78 kg · −0.5 tot −0.7 kg/week</div>
-          </div>
+          <div><div style="font-size:13px;font-weight:700">📉 Gewichtstrend</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Doel: 78 kg · −0.5 tot −0.7 kg/week</div></div>
           <span class="badge badge-green">Op schema ✓</span>
         </div>
         <div class="mini-chart" id="weightChart"></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px;padding:0 2px">
-          <span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>Nu</span>
-        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>Nu</span></div>
       </div>
 
       <div class="section-label">📅 Vandaag — Woensdag Motordag</div>
@@ -495,7 +283,7 @@
       </div>
     </div>
 
-    <!-- ════ SCHEMA ════ -->
+    <!-- SCHEMA -->
     <div class="page" id="page-schema">
       <div class="page-header"><div><h2>Trainingsschema</h2><div class="sub">Week 1 · 4 mei – 10 mei 2026 · Base fase</div></div></div>
       <div class="legend">
@@ -513,129 +301,91 @@
         <div class="day-card type-moto" onclick="selectDay('za',this)"><div class="day-name">ZA 9</div><div class="day-icon">🏍️</div><div class="day-type">Motordag race-sim</div></div>
         <div class="day-card type-moto" onclick="selectDay('zo',this)"><div class="day-name">ZO 10</div><div class="day-icon">🏍️</div><div class="day-type">Motordag techniek</div></div>
       </div>
-
-      <div id="day-wo">
-        <div class="tip tip-orange">🏍️ <div><strong>Woensdag — Motordag + grip gym</strong><br>Motor eerst, gym erna. Tim Gajser traint 2× per dag. Garmin traceert HF op de motor automatisch.</div></div>
-        <div class="session"><div class="session-header"><div class="session-title">☀️ Warming-up</div><span class="badge badge-teal">15 min</span></div><div class="ex-row"><span class="ex-name">Dynamisch stretchen — heupen, schouders, nek</span><span class="ex-val">5 min</span></div><div class="ex-row"><span class="ex-name">Roeier Zone 2 · HF ~140</span><span class="ex-val">10 min</span></div></div>
-        <div class="session"><div class="session-header"><div class="session-title">🏍️ Op de motor — 2 motos</div><span class="badge badge-orange">90 min</span></div><div class="ex-row"><span class="ex-name">Starts — holeshot training</span><span class="ex-val">20 min · 10×</span></div><div class="ex-row"><span class="ex-name">Sectiewerk — lijnkeuze langzaam</span><span class="ex-val">15 min</span></div><div class="ex-row"><span class="ex-name">Moto 1 — volledig tempo</span><span class="ex-val">20 min · max HF</span></div><div class="ex-row"><span class="ex-name">Rust + water + banaan</span><span class="ex-val">10 min</span></div><div class="ex-row"><span class="ex-name">Moto 2 — volledig tempo</span><span class="ex-val">20 min · max HF</span></div></div>
-        <div class="session"><div class="session-header"><div class="session-title">💪 Grip & core gym</div><span class="badge badge-orange">45 min</span></div><div class="ex-row"><span class="ex-name">Deadlift</span><span class="ex-val">4×5 · zwaar</span></div><div class="ex-row"><span class="ex-name">Pull-ups (gewicht aan riem)</span><span class="ex-val">4×6–8</span></div><div class="ex-row"><span class="ex-name">Farmers carry · 2×32 kg kettlebell</span><span class="ex-val">4×30m</span></div><div class="ex-row"><span class="ex-name">Gripper — knijpkracht</span><span class="ex-val">3× sets</span></div><div class="ex-row"><span class="ex-name">Plank variaties</span><span class="ex-val">3×60 sec</span></div></div>
-        <div class="session"><div class="session-header"><div class="session-title">🧘 Cool-down</div><span class="badge badge-green">10 min</span></div><div class="ex-row"><span class="ex-name">Foam rollen — benen, rug, schouders</span><span class="ex-val">5 min</span></div><div class="ex-row"><span class="ex-name">Statisch stretchen</span><span class="ex-val">5 min</span></div></div>
-      </div>
-      <div id="day-di" style="display:none"><div class="tip tip-blue">🏃 <div><strong>Dinsdag — Hardlopen + Zone 2 (HYROX onderhoud)</strong><br>Minimaal 1× per week hardlopen. Garmin traceert automatisch pace, HRV belasting en VO2max.</div></div><div class="session"><div class="session-header"><div class="session-title">🏃 Hardloopsessie</div><span class="badge badge-blue">45–60 min</span></div><div class="ex-row"><span class="ex-name">Inlopen rustig</span><span class="ex-val">10 min · HF &lt;130</span></div><div class="ex-row"><span class="ex-name">Zone 2 duurloop</span><span class="ex-val">25 min · HF 130–145</span></div><div class="ex-row"><span class="ex-name">4×400m intervallen (optioneel)</span><span class="ex-val">HF 165+ · HYROX tempo</span></div><div class="ex-row"><span class="ex-name">Uitlopen + stretchen</span><span class="ex-val">10 min</span></div><div class="ex-row"><span class="ex-name">Garmin Running Dynamics</span><span class="ex-val">Cadans doel: 170–180 spm</span></div></div></div>
-      <div id="day-ma" style="display:none"><div class="tip tip-orange">🏋️ <div><strong>Maandag — Full body kracht</strong><br>Explosieve kracht + grip. Basis voor controle op de motor.</div></div><div class="session"><div class="session-header"><div class="session-title">🔥 Krachtsessie</div><span class="badge badge-orange">60 min</span></div><div class="ex-row"><span class="ex-name">Squat</span><span class="ex-val">5×5 · 70–100 kg</span></div><div class="ex-row"><span class="ex-name">Barbell row</span><span class="ex-val">4×8</span></div><div class="ex-row"><span class="ex-name">Bench press</span><span class="ex-val">4×6 · 70–85 kg</span></div><div class="ex-row"><span class="ex-name">Romanian deadlift</span><span class="ex-val">3×10</span></div><div class="ex-row"><span class="ex-name">Hanging leg raise</span><span class="ex-val">4×15</span></div><div class="ex-row"><span class="ex-name">Overhead press</span><span class="ex-val">3×8</span></div></div></div>
-      <div id="day-do" style="display:none"><div class="tip tip-orange">🏋️ <div><strong>Donderdag — Upper body + core</strong><br>Lichte dag voor het weekend met 2 zware motordagen.</div></div><div class="session"><div class="session-header"><div class="session-title">💪 Upper body</div><span class="badge badge-orange">50 min</span></div><div class="ex-row"><span class="ex-name">Weighted pull-up</span><span class="ex-val">4×5–6 · bw +5 kg</span></div><div class="ex-row"><span class="ex-name">Dumbbell press</span><span class="ex-val">3×10</span></div><div class="ex-row"><span class="ex-name">Face pulls kabel</span><span class="ex-val">3×15</span></div><div class="ex-row"><span class="ex-name">Bicep + tricep supersets</span><span class="ex-val">3×12</span></div><div class="ex-row"><span class="ex-name">Ab wheel rollout</span><span class="ex-val">3×10</span></div><div class="ex-row"><span class="ex-name">Copenhagen plank</span><span class="ex-val">3×20 sec/zijde</span></div></div></div>
-      <div id="day-vr" style="display:none"><div class="tip tip-green">😴 <div><strong>Vrijdag — Actief herstel</strong><br>Cruciaal voor pro MX. Rust is net zo belangrijk als training.</div></div><div class="session"><div class="session-header"><div class="session-title">🧘 Herstel & mobiliteit</div><span class="badge badge-green">30–45 min</span></div><div class="ex-row"><span class="ex-name">Foam rollen — benen, rug, IT-band</span><span class="ex-val">10 min</span></div><div class="ex-row"><span class="ex-name">Yoga / mobiliteitsroutine</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">Wandeling buiten (licht)</span><span class="ex-val">20–30 min</span></div></div></div>
-      <div id="day-za" style="display:none"><div class="tip tip-orange">🏍️ <div><strong>Zaterdag — Race simulatie</strong><br>2 volledige motos op racetempo + start training.</div></div><div class="session"><div class="session-header"><div class="session-title">🏍️ Race simulatie</div><span class="badge badge-orange">2u+</span></div><div class="ex-row"><span class="ex-name">Start training — 15 starts</span><span class="ex-val">30 min</span></div><div class="ex-row"><span class="ex-name">Moto 1 — 30 min racetempo</span><span class="ex-val">Max inspanning</span></div><div class="ex-row"><span class="ex-name">Rust 20 min + eten + water</span><span class="ex-val">Herstel</span></div><div class="ex-row"><span class="ex-name">Moto 2 — 30 min racetempo</span><span class="ex-val">Max inspanning</span></div></div></div>
-      <div id="day-zo" style="display:none"><div class="tip tip-orange">🏍️ <div><strong>Zondag — Techniek & lijnkeuze</strong><br>Rustiger dan zaterdag. Focus op techniek en sprongen.</div></div><div class="session"><div class="session-header"><div class="session-title">🏍️ Techniekdag</div><span class="badge badge-orange">90 min</span></div><div class="ex-row"><span class="ex-name">Secties rijden — langzaam herhalen</span><span class="ex-val">30 min</span></div><div class="ex-row"><span class="ex-name">Sprongentechniek</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">1 moto tempo — 20 min</span><span class="ex-val">Lagere intensiteit</span></div><div class="ex-row"><span class="ex-name">Video analyse rijstijl (optioneel)</span><span class="ex-val">Pro gewoonte</span></div></div></div>
+      <div id="day-wo"><div class="tip tip-orange">🏍️ <div><strong>Woensdag — Motordag + grip gym</strong><br>Motor eerst, gym erna. Garmin traceert HF automatisch.</div></div><div class="session"><div class="session-header"><div class="session-title">☀️ Warming-up</div><span class="badge badge-teal">15 min</span></div><div class="ex-row"><span class="ex-name">Dynamisch stretchen</span><span class="ex-val">5 min</span></div><div class="ex-row"><span class="ex-name">Roeier Zone 2 · HF ~140</span><span class="ex-val">10 min</span></div></div><div class="session"><div class="session-header"><div class="session-title">🏍️ Op de motor — 2 motos</div><span class="badge badge-orange">90 min</span></div><div class="ex-row"><span class="ex-name">Starts — holeshot training</span><span class="ex-val">20 min · 10×</span></div><div class="ex-row"><span class="ex-name">Sectiewerk — lijnkeuze</span><span class="ex-val">15 min</span></div><div class="ex-row"><span class="ex-name">Moto 1 — volledig tempo</span><span class="ex-val">20 min · max HF</span></div><div class="ex-row"><span class="ex-name">Rust + water + banaan</span><span class="ex-val">10 min</span></div><div class="ex-row"><span class="ex-name">Moto 2 — volledig tempo</span><span class="ex-val">20 min · max HF</span></div></div><div class="session"><div class="session-header"><div class="session-title">💪 Grip & core gym</div><span class="badge badge-orange">45 min</span></div><div class="ex-row"><span class="ex-name">Deadlift</span><span class="ex-val">4×5 · zwaar</span></div><div class="ex-row"><span class="ex-name">Pull-ups (gewicht aan riem)</span><span class="ex-val">4×6–8</span></div><div class="ex-row"><span class="ex-name">Farmers carry · 2×32 kg KB</span><span class="ex-val">4×30m</span></div><div class="ex-row"><span class="ex-name">Gripper knijpkracht</span><span class="ex-val">3× sets</span></div><div class="ex-row"><span class="ex-name">Plank variaties</span><span class="ex-val">3×60 sec</span></div></div></div>
+      <div id="day-di" style="display:none"><div class="tip tip-blue">🏃 <div><strong>Dinsdag — Hardlopen + Zone 2 (HYROX onderhoud)</strong></div></div><div class="session"><div class="session-header"><div class="session-title">🏃 Hardloopsessie</div><span class="badge badge-blue">45–60 min</span></div><div class="ex-row"><span class="ex-name">Inlopen rustig</span><span class="ex-val">10 min · HF &lt;130</span></div><div class="ex-row"><span class="ex-name">Zone 2 duurloop</span><span class="ex-val">25 min · HF 130–145</span></div><div class="ex-row"><span class="ex-name">4×400m intervallen (optioneel)</span><span class="ex-val">HF 165+</span></div><div class="ex-row"><span class="ex-name">Uitlopen + stretchen</span><span class="ex-val">10 min</span></div></div></div>
+      <div id="day-ma" style="display:none"><div class="tip tip-orange">🏋️ <div><strong>Maandag — Full body kracht</strong></div></div><div class="session"><div class="session-header"><div class="session-title">🔥 Krachtsessie</div><span class="badge badge-orange">60 min</span></div><div class="ex-row"><span class="ex-name">Squat</span><span class="ex-val">5×5 · 70–100 kg</span></div><div class="ex-row"><span class="ex-name">Barbell row</span><span class="ex-val">4×8</span></div><div class="ex-row"><span class="ex-name">Bench press</span><span class="ex-val">4×6 · 70–85 kg</span></div><div class="ex-row"><span class="ex-name">Romanian deadlift</span><span class="ex-val">3×10</span></div><div class="ex-row"><span class="ex-name">Hanging leg raise</span><span class="ex-val">4×15</span></div></div></div>
+      <div id="day-do" style="display:none"><div class="tip tip-orange">🏋️ <div><strong>Donderdag — Upper body + core</strong></div></div><div class="session"><div class="session-header"><div class="session-title">💪 Upper body</div><span class="badge badge-orange">50 min</span></div><div class="ex-row"><span class="ex-name">Weighted pull-up</span><span class="ex-val">4×5–6 · bw +5 kg</span></div><div class="ex-row"><span class="ex-name">Dumbbell press</span><span class="ex-val">3×10</span></div><div class="ex-row"><span class="ex-name">Face pulls kabel</span><span class="ex-val">3×15</span></div><div class="ex-row"><span class="ex-name">Bicep + tricep supersets</span><span class="ex-val">3×12</span></div><div class="ex-row"><span class="ex-name">Ab wheel + Copenhagen plank</span><span class="ex-val">3×10 / 3×20sec</span></div></div></div>
+      <div id="day-vr" style="display:none"><div class="tip tip-green">😴 <div><strong>Vrijdag — Actief herstel</strong></div></div><div class="session"><div class="session-header"><div class="session-title">🧘 Herstel & mobiliteit</div><span class="badge badge-green">30–45 min</span></div><div class="ex-row"><span class="ex-name">Foam rollen</span><span class="ex-val">10 min</span></div><div class="ex-row"><span class="ex-name">Yoga / mobiliteit</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">Wandeling buiten</span><span class="ex-val">20–30 min</span></div></div></div>
+      <div id="day-za" style="display:none"><div class="tip tip-orange">🏍️ <div><strong>Zaterdag — Race simulatie</strong></div></div><div class="session"><div class="session-header"><div class="session-title">🏍️ Race simulatie</div><span class="badge badge-orange">2u+</span></div><div class="ex-row"><span class="ex-name">Start training — 15 starts</span><span class="ex-val">30 min</span></div><div class="ex-row"><span class="ex-name">Moto 1 — 30 min racetempo</span><span class="ex-val">Max inspanning</span></div><div class="ex-row"><span class="ex-name">Rust + eten + water</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">Moto 2 — 30 min racetempo</span><span class="ex-val">Max inspanning</span></div></div></div>
+      <div id="day-zo" style="display:none"><div class="tip tip-orange">🏍️ <div><strong>Zondag — Techniek & lijnkeuze</strong></div></div><div class="session"><div class="session-header"><div class="session-title">🏍️ Techniekdag</div><span class="badge badge-orange">90 min</span></div><div class="ex-row"><span class="ex-name">Secties rijden langzaam</span><span class="ex-val">30 min</span></div><div class="ex-row"><span class="ex-name">Sprongentechniek</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">1 moto tempo</span><span class="ex-val">20 min</span></div><div class="ex-row"><span class="ex-name">Video analyse (optioneel)</span><span class="ex-val">Pro gewoonte</span></div></div></div>
     </div>
 
-    <!-- ════ VOEDING ════ -->
+    <!-- VOEDING -->
     <div class="page" id="page-voeding">
       <div class="page-header"><div><h2>Voedingsplan</h2><div class="sub">2200 kcal/dag · afvalstrategie · hoog eiwit</div></div></div>
-      <div class="tip tip-teal">🥗 <div><strong>Strategie:</strong> −500 kcal tekort per dag · 175g eiwit/dag om spier te behouden · op motordag +300 kcal extra koolhydraten</div></div>
-      <div class="card" style="margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px"><span>Dagelijkse kcal: <span style="color:var(--orange)">2200</span></span><span style="color:var(--text2);font-weight:400;font-size:12px">Onderhoud: ~2700</span></div>
-        <div class="macro-bar"><div class="macro-seg" style="width:35%;height:8px;background:var(--blue)"></div><div class="macro-seg" style="width:40%;height:8px;background:var(--orange)"></div><div class="macro-seg" style="width:25%;height:8px;background:#d97706"></div></div>
-        <div style="display:flex;gap:16px;font-size:11px;margin-top:4px"><span style="color:var(--blue)">Eiwit 175g (35%)</span><span style="color:var(--orange)">KH 220g (40%)</span><span style="color:#d97706">Vet 55g (25%)</span></div>
-      </div>
+      <div class="tip tip-teal">🥗 <div><strong>Strategie:</strong> −500 kcal tekort · 175g eiwit/dag · op motordag +300 kcal extra koolhydraten</div></div>
+      <div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:8px"><span>Dagelijkse kcal: <span style="color:var(--orange)">2200</span></span><span style="color:var(--text2);font-weight:400;font-size:12px">Onderhoud: ~2700</span></div><div class="macro-bar"><div class="macro-seg" style="width:35%;height:8px;background:var(--blue)"></div><div class="macro-seg" style="width:40%;height:8px;background:var(--orange)"></div><div class="macro-seg" style="width:25%;height:8px;background:#d97706"></div></div><div style="display:flex;gap:16px;font-size:11px;margin-top:4px"><span style="color:var(--blue)">Eiwit 175g</span><span style="color:var(--orange)">KH 220g</span><span style="color:#d97706">Vet 55g</span></div></div>
       <div class="meal-grid">
-        <div class="meal-card"><div class="meal-header">🌅 Ontbijt <span class="meal-kcal">~550 kcal</span></div><div class="meal-item">• Havermout 80g + magere melk</div><div class="meal-item">• 4 eieren roerei</div><div class="meal-item">• Banaan + bessen</div><div class="meal-item">• Zwarte koffie</div><div class="meal-macro">Eiwit: 38g · KH: 55g · Vet: 14g</div></div>
+        <div class="meal-card"><div class="meal-header">🌅 Ontbijt <span class="meal-kcal">~550 kcal</span></div><div class="meal-item">• Havermout 80g + magere melk</div><div class="meal-item">• 4 eieren roerei</div><div class="meal-item">• Banaan + bessen · zwarte koffie</div><div class="meal-macro">Eiwit: 38g · KH: 55g · Vet: 14g</div></div>
         <div class="meal-card"><div class="meal-header">🍱 Lunch <span class="meal-kcal">~550 kcal</span></div><div class="meal-item">• Kipfilet 200g gegrild</div><div class="meal-item">• Rijst 100g of zoete aardappel</div><div class="meal-item">• Geroerbakte groenten + olijfolie</div><div class="meal-macro">Eiwit: 45g · KH: 60g · Vet: 12g</div></div>
         <div class="meal-card"><div class="meal-header">⚡ Pre-workout <span class="meal-kcal">~350 kcal</span></div><div class="meal-item">• Kwark 200g + honing</div><div class="meal-item">• Rijstwafels 3 stuks</div><div class="meal-item">• Whey shake 30g eiwit</div><div class="meal-macro">Eiwit: 40g · KH: 40g · Vet: 5g</div></div>
         <div class="meal-card"><div class="meal-header">🍽️ Avondeten <span class="meal-kcal">~600 kcal</span></div><div class="meal-item">• Zalm 200g of rood vlees 180g</div><div class="meal-item">• Quinoa 80g of aardappelen</div><div class="meal-item">• Broccoli + spinazie + avocado ½</div><div class="meal-macro">Eiwit: 42g · KH: 55g · Vet: 22g</div></div>
         <div class="meal-card"><div class="meal-header">🌙 Avondsnack <span class="meal-kcal">~150 kcal</span></div><div class="meal-item">• Magere kwark 150g</div><div class="meal-item">• Of caseïne shake 25g</div><div class="meal-macro">Eiwit: 20g · langzaam eiwit</div></div>
         <div class="meal-card" style="border-color:rgba(249,115,22,0.3)"><div class="meal-header">🏍️ Motordag extra <span class="meal-kcal" style="color:var(--green)">+300 kcal</span></div><div class="meal-item">• Extra pasta/rijst bij lunch</div><div class="meal-item">• Sports drink tijdens rijden</div><div class="meal-item">• Banaan between motos</div><div class="meal-macro" style="color:var(--orange)">Totaal motordag: 2500 kcal</div></div>
       </div>
-      <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:10px">💧 Hydratatie</div><div class="garmin-row"><span class="garmin-key">Rustige dag</span><span class="garmin-val">2.5–3 liter</span></div><div class="garmin-row"><span class="garmin-key">Gymdag</span><span class="garmin-val">3–3.5 liter</span></div><div class="garmin-row"><span class="garmin-key">Motordag (warm)</span><span class="garmin-val" style="color:var(--orange)">4–5 liter + elektrolyten</span></div></div>
+      <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:10px">💧 Hydratatie</div><div class="gdata-row"><span class="gdata-key">Rustige dag</span><span class="gdata-val">2.5–3 liter</span></div><div class="gdata-row"><span class="gdata-key">Gymdag</span><span class="gdata-val">3–3.5 liter</span></div><div class="gdata-row"><span class="gdata-key">Motordag (warm)</span><span class="gdata-val" style="color:var(--orange)">4–5 liter + elektrolyten</span></div></div>
     </div>
 
-    <!-- ════ GARMIN ════ -->
+    <!-- GARMIN DATA -->
     <div class="page" id="page-garmin">
-      <div class="page-header"><div><h2>Garmin data</h2><div class="sub">Live metrics van je horloge</div></div><button class="sync-btn" onclick="doSync()">↻ Sync nu</button></div>
-      <div class="tip tip-teal" id="garminPageTip">⌚ <div><strong>Nog niet gekoppeld</strong> — Klik op "Koppel Garmin" in de zijbalk om je Garmin Connect account te verbinden en live data te zien.</div></div>
-      <div id="garminDataSection" style="display:none">
-        <div class="grid2">
-          <div class="card"><div class="card-label" style="color:var(--teal)">😴 Slaap analyse</div><div class="garmin-row"><span class="garmin-key">Totale slaap</span><span class="garmin-val">6u 12m</span></div><div class="garmin-row"><span class="garmin-key">Diepe slaap</span><span class="garmin-val">1u 18m</span></div><div class="garmin-row"><span class="garmin-key">REM slaap</span><span class="garmin-val">1u 42m</span></div><div class="garmin-row"><span class="garmin-key">Slaapscore</span><span class="garmin-val" style="color:var(--orange)">59 / 100</span></div></div>
-          <div class="card"><div class="card-label" style="color:var(--teal)">❤️ Hartslag & HRV</div><div class="garmin-row"><span class="garmin-key">Rusthartslag</span><span class="garmin-val">41 bpm</span></div><div class="garmin-row"><span class="garmin-key">HRV score</span><span class="garmin-val" style="color:var(--green)">98 ms</span></div><div class="garmin-row"><span class="garmin-key">7d gem HRV</span><span class="garmin-val">85 ms</span></div><div class="garmin-row"><span class="garmin-key">Body Battery</span><span class="garmin-val" style="color:var(--green)">72 / 100</span></div></div>
-          <div class="card"><div class="card-label" style="color:var(--teal)">🏃 Laatste hardloopsessie</div><div class="garmin-row"><span class="garmin-key">Datum</span><span class="garmin-val">Di 5 mei</span></div><div class="garmin-row"><span class="garmin-key">Afstand</span><span class="garmin-val">8.2 km</span></div><div class="garmin-row"><span class="garmin-key">Pace</span><span class="garmin-val">5:24 /km</span></div><div class="garmin-row"><span class="garmin-key">VO2max schatting</span><span class="garmin-val" style="color:var(--green)">46</span></div></div>
-          <div class="card"><div class="card-label" style="color:var(--teal)">🏋️ Laatste gym</div><div class="garmin-row"><span class="garmin-key">Datum</span><span class="garmin-val">Ma 4 mei</span></div><div class="garmin-row"><span class="garmin-key">Duur</span><span class="garmin-val">61 min</span></div><div class="garmin-row"><span class="garmin-key">Kcal verbrand</span><span class="garmin-val">480 kcal</span></div><div class="garmin-row"><span class="garmin-key">Training Effect</span><span class="garmin-val" style="color:var(--orange)">4.2 / 5</span></div></div>
+      <div class="page-header"><div><h2>Garmin data</h2><div class="sub">Live metrics via Intervals.icu · Atleet ID: i575727</div></div><button class="sync-btn" onclick="loadGarminData()">↻ Sync nu</button></div>
+      <div id="garminPageLoading" class="loading"><div class="spinner"></div> Garmin data ophalen...</div>
+      <div id="garminPageData" style="display:none">
+        <div class="grid2" style="margin-bottom:16px">
+          <div class="card">
+            <div class="card-label" style="color:var(--teal)">😴 Slaap & welzijn</div>
+            <div class="gdata-row"><span class="gdata-key">HRV score</span><span class="gdata-val" id="g_hrv">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Rusthartslag</span><span class="gdata-val" id="g_rhr">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Slaap (uur)</span><span class="gdata-val" id="g_sleep">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Slaapscore</span><span class="gdata-val" id="g_sleepscore">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Body Battery</span><span class="gdata-val" id="g_bb">—</span></div>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:var(--teal)">🏃 Activiteit & lichaam</div>
+            <div class="gdata-row"><span class="gdata-key">Stappen</span><span class="gdata-val" id="g_steps">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Gewicht (kg)</span><span class="gdata-val" id="g_weight">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">SpO2 (%)</span><span class="gdata-val" id="g_spo2">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">Stressscore</span><span class="gdata-val" id="g_stress">—</span></div>
+            <div class="gdata-row"><span class="gdata-key">VO2max schatting</span><span class="gdata-val" id="g_vo2">—</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label" style="color:var(--teal);margin-bottom:12px">📊 Wellness trend — laatste 7 dagen</div>
+          <div id="wellnessTrend" style="display:flex;gap:8px;align-items:flex-end;height:60px"></div>
+          <div id="wellnessDates" style="display:flex;gap:8px;margin-top:4px;font-size:9px;color:var(--text3)"></div>
         </div>
       </div>
+      <div id="garminPageError" style="display:none">
+        <div class="tip tip-red">⚠️ <div id="garminErrorMsg">Kon geen data ophalen van Intervals.icu.</div></div>
+      </div>
     </div>
 
-    <!-- ════ GEWICHT ════ -->
+    <!-- GEWICHT -->
     <div class="page" id="page-gewicht">
       <div class="page-header"><div><h2>Gewichtsbeheer</h2><div class="sub">85 kg → 78 kg · −7 kg totaal · ~10 weken</div></div></div>
-      <div class="weight-row">
-        <span style="font-size:20px">⚖️</span>
-        <div style="flex:1;font-size:14px;font-weight:700">Gewicht van vandaag</div>
-        <input class="weight-input" type="number" id="wInput2" value="85.0" step="0.1" min="50" max="200">
-        <span style="font-size:13px;color:var(--text2)">kg</span>
-        <button class="save-btn" onclick="saveWeight2()">Opslaan</button>
-        <span id="wMsg2" style="font-size:12px;color:var(--green);display:none">✓ Opgeslagen!</span>
-      </div>
-      <div class="card" style="margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:13px;font-weight:700">📉 Gewichtstrend — 7 weken</div><span class="badge badge-green">−0.7 kg/week ✓</span></div>
-        <div class="mini-chart" id="weightChart2"></div>
-        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px"><span>W1<br>85.0</span><span>W2<br>84.3</span><span>W3<br>83.8</span><span>W4<br>83.2</span><span>W5<br>82.6</span><span>W6<br>82.0</span><span>Nu<br>—</span></div>
-      </div>
-      <div class="grid3">
-        <div class="card"><div class="card-label">🎯 Startgewicht</div><div class="card-val">85.0 kg</div><div class="card-sub">1 mei 2026</div></div>
-        <div class="card"><div class="card-label">🏁 Doelgewicht</div><div class="card-val" style="color:var(--green)">78.0 kg</div><div class="card-sub">−7 kg totaal</div></div>
-        <div class="card"><div class="card-label">📅 Verwacht doel</div><div class="card-val">~Juli '26</div><div class="card-sub">Bij −0.7 kg/week</div></div>
-      </div>
-      <div class="tip tip-teal">💡 <div>Weeg elke ochtend nuchter na het toilet. Gebruik het 7-daags gemiddelde — dagelijkse schommelingen van 0.5–1 kg zijn normaal. Vertrouw de trend, niet de dag.</div></div>
+      <div class="weight-row"><span style="font-size:20px">⚖️</span><div style="flex:1;font-size:14px;font-weight:700">Gewicht van vandaag</div><input class="weight-input" type="number" id="wInput2" value="85.0" step="0.1" min="50" max="200"><span style="font-size:13px;color:var(--text2)">kg</span><button class="save-btn" onclick="saveWeight2()">Opslaan</button><span id="wMsg2" style="font-size:12px;color:var(--green);display:none">✓ Opgeslagen!</span></div>
+      <div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div style="font-size:13px;font-weight:700">📉 Gewichtstrend</div><span class="badge badge-green">−0.7 kg/week ✓</span></div><div class="mini-chart" id="weightChart2"></div><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px"><span>W1<br>85.0</span><span>W2<br>84.3</span><span>W3<br>83.8</span><span>W4<br>83.2</span><span>W5<br>82.6</span><span>W6<br>82.0</span><span>Nu<br>—</span></div></div>
+      <div class="grid3"><div class="card"><div class="card-label">🎯 Startgewicht</div><div class="card-val">85.0 kg</div><div class="card-sub">1 mei 2026</div></div><div class="card"><div class="card-label">🏁 Doelgewicht</div><div class="card-val" style="color:var(--green)">78.0 kg</div><div class="card-sub">−7 kg totaal</div></div><div class="card"><div class="card-label">📅 Verwacht doel</div><div class="card-val">~Juli '26</div><div class="card-sub">Bij −0.7 kg/week</div></div></div>
+      <div class="tip tip-teal">💡 <div>Weeg elke ochtend nuchter na het toilet. Vertrouw de 7-daagse trend, niet de dagelijkse schommeling.</div></div>
     </div>
 
-    <!-- ════ STATS ════ -->
+    <!-- STATS -->
     <div class="page" id="page-stats">
-      <div class="page-header"><div><h2>Stats & info</h2><div class="sub">Pro MX trainingsmethoden + weekoverzicht</div></div></div>
-      <div class="grid4">
-        <div class="card"><div class="card-label">🏍️ Motodagen/week</div><div class="card-val">3</div><div class="card-sub">Wo · Za · Zo</div></div>
-        <div class="card"><div class="card-label">🏃 Hardlopen/week</div><div class="card-val">1×</div><div class="card-sub">Di · HYROX basis</div></div>
-        <div class="card"><div class="card-label">🏋️ Gymdagen/week</div><div class="card-val">3×</div><div class="card-sub">Ma · Wo · Do</div></div>
-        <div class="card"><div class="card-label">⏱️ Totaal/week</div><div class="card-val">~9u</div><div class="card-sub">Motor + gym + cardio</div></div>
-      </div>
-      <div class="card" style="margin-bottom:16px">
-        <div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 Pro rijder referenties</div>
-        <div class="ex-row"><span class="ex-name">Jeffrey Herlings</span><span class="ex-val">2–3 motodagen/week · dagelijks gym · tot 15 motos/week</span></div>
-        <div class="ex-row"><span class="ex-name">Tim Gajser</span><span class="ex-val">2× per dag trainen · ochtend + middag · HRC physio</span></div>
-        <div class="ex-row"><span class="ex-name">Grip kracht</span><span class="ex-val">Dagelijks prioriteit · sleutel tegen armpomp</span></div>
-        <div class="ex-row" style="border:none"><span class="ex-name">Slaap & herstel</span><span class="ex-val">Minstens 8u · herstel = prestatie</span></div>
-      </div>
+      <div class="page-header"><div><h2>Stats & info</h2><div class="sub">Pro MX trainingsmethoden</div></div></div>
+      <div class="grid4"><div class="card"><div class="card-label">🏍️ Motodagen/week</div><div class="card-val">3</div><div class="card-sub">Wo · Za · Zo</div></div><div class="card"><div class="card-label">🏃 Hardlopen/week</div><div class="card-val">1×</div><div class="card-sub">Di · HYROX basis</div></div><div class="card"><div class="card-label">🏋️ Gymdagen/week</div><div class="card-val">3×</div><div class="card-sub">Ma · Wo · Do</div></div><div class="card"><div class="card-label">⏱️ Totaal/week</div><div class="card-val">~9u</div><div class="card-sub">Motor + gym + cardio</div></div></div>
+      <div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:12px">🏆 Pro rijder referenties</div><div class="ex-row"><span class="ex-name">Jeffrey Herlings</span><span class="ex-val">2–3 motodagen/week · dagelijks gym · tot 15 motos/week</span></div><div class="ex-row"><span class="ex-name">Tim Gajser</span><span class="ex-val">2× per dag trainen · HRC physio begeleiding</span></div><div class="ex-row"><span class="ex-name">Grip kracht</span><span class="ex-val">Dagelijks prioriteit · sleutel tegen armpomp</span></div><div class="ex-row" style="border:none"><span class="ex-name">Slaap & herstel</span><span class="ex-val">Minstens 8u · herstel = prestatie</span></div></div>
     </div>
 
   </main>
 </div>
 
-<!-- ════ GARMIN MODAL ════ -->
-<div class="modal-overlay" id="garminModal" onclick="closeModalOutside(event)">
-  <div class="modal">
-    <button class="modal-close" onclick="closeGarminModal()">×</button>
-    <div id="modalForm">
-      <div style="font-size:32px;margin-bottom:12px">⌚</div>
-      <h3>Koppel Garmin Connect</h3>
-      <div class="sub">Vul je Garmin Connect inloggegevens in om live data te synchroniseren met je dashboard.</div>
-      <div class="modal-field">
-        <label>E-mailadres</label>
-        <input type="email" id="garminEmail" placeholder="jouw@email.com">
-      </div>
-      <div class="modal-field">
-        <label>Wachtwoord</label>
-        <input type="password" id="garminPass" placeholder="••••••••">
-      </div>
-      <button class="modal-submit" onclick="connectGarmin()">Koppel account ⌚</button>
-      <div class="modal-note">🔒 Je gegevens worden alleen gebruikt om verbinding te maken met Garmin Connect. Ze worden nooit opgeslagen of gedeeld.</div>
-    </div>
-    <div class="modal-success" id="modalSuccess">
-      <div class="icon">✅</div>
-      <h4>Garmin gekoppeld!</h4>
-      <p>Je Garmin Connect account is succesvol verbonden. Data wordt nu gesynchroniseerd.</p>
-    </div>
-  </div>
-</div>
-
 <script>
+  // ── CONFIG ──
+  const ATHLETE_ID = 'i575727';
+  const API_KEY    = '4ydn5h3mzd246sch2pejmqr8j';
+  const BASE       = 'https://intervals.icu/api/v1/athlete/' + ATHLETE_ID;
+  const AUTH       = 'Basic ' + btoa('API_KEY:' + API_KEY);
+
   // ── NAVIGATION ──
   function nav(page, btn) {
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -644,129 +394,173 @@
     document.getElementById('page-' + page).classList.add('active');
   }
 
+  // ── DATE ──
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
+  const weekAgo  = new Date(today - 7*24*3600*1000).toISOString().split('T')[0];
+  document.getElementById('todayDate').textContent =
+    'Week 1 · Base fase · ' + today.toLocaleDateString('nl-NL', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  // ── LOAD GARMIN DATA ──
+  async function loadGarminData() {
+    document.getElementById('dashLoading').style.display = 'flex';
+    document.getElementById('statsGrid').style.display = 'none';
+    document.getElementById('garminPageLoading').style.display = 'flex';
+    document.getElementById('garminPageData').style.display = 'none';
+    document.getElementById('garminPageError').style.display = 'none';
+
+    try {
+      const res = await fetch(`${BASE}/wellness?oldest=${weekAgo}&newest=${todayStr}`, {
+        headers: { 'Authorization': AUTH }
+      });
+
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' — controleer API key');
+      const data = await res.json();
+
+      if (!data || data.length === 0) throw new Error('Geen data gevonden voor deze periode');
+
+      // Laatste dag met data
+      const latest = data[data.length - 1];
+
+      // Helper
+      const fmt = (v, dec=0) => v != null ? Number(v).toFixed(dec) : '—';
+      const fmtH = v => v != null ? (v/3600).toFixed(1) + 'u' : '—';
+
+      // Dashboard strip
+      const bb = latest.bodyBattery ?? latest.bb ?? null;
+      const hrv = latest.hrv ?? latest.hrvRmssd ?? null;
+      const rhr = latest.restingHR ?? latest.rhr ?? null;
+      const sleep = latest.sleepSecs ?? null;
+      const steps = latest.steps ?? null;
+      const weight = latest.weight ?? null;
+      const spo2 = latest.spO2 ?? null;
+      const stress = latest.avgStress ?? null;
+      const vo2 = latest.vo2max ?? null;
+      const sleepScore = latest.sleepScore ?? null;
+
+      // Sidebar pill
+      document.getElementById('gdot').className = 'gdot on';
+      document.getElementById('garminPillTxt').textContent = 'Garmin live ✓';
+
+      // Strip waarden
+      const bbVal = bb != null ? Math.round(bb) : '—';
+      document.getElementById('sBodyBat').textContent = bbVal;
+      document.getElementById('sHRV').textContent = hrv != null ? Math.round(hrv) : '—';
+      document.getElementById('sRHR').textContent = rhr != null ? Math.round(rhr) : '—';
+      document.getElementById('sSlaap').textContent = sleep != null ? fmtH(sleep) : '—';
+      document.getElementById('sStappen').textContent = steps != null ? (steps >= 1000 ? (steps/1000).toFixed(1)+'k' : steps) : '—';
+      document.getElementById('sGewicht').textContent = weight != null ? weight.toFixed(1) : '—';
+      document.getElementById('garminStrip').classList.add('visible');
+
+      // Dashboard cards
+      const bbNum = bb != null ? Math.round(bb) : null;
+      document.getElementById('dBodyBat').textContent = bbNum ?? '—';
+      document.getElementById('dBodyBat').style.color = bbNum > 70 ? 'var(--green)' : bbNum > 40 ? 'var(--orange)' : 'var(--red)';
+      document.getElementById('dBodyBatSub').textContent = bbNum > 70 ? 'Goed herstel' : bbNum > 40 ? 'Matig herstel' : 'Laag — rust aan!';
+      document.getElementById('dBodyBatBar').style.width = (bbNum ?? 0) + '%';
+      document.getElementById('dBodyBatBar').style.background = bbNum > 70 ? 'var(--green)' : bbNum > 40 ? 'var(--orange)' : 'var(--red)';
+
+      const hrvNum = hrv != null ? Math.round(hrv) : null;
+      document.getElementById('dHRV').textContent = hrvNum != null ? hrvNum + ' ms' : '—';
+      document.getElementById('dHRV').style.color = hrvNum > 80 ? 'var(--green)' : hrvNum > 50 ? 'var(--orange)' : 'var(--red)';
+      document.getElementById('dHRVsub').textContent = rhr != null ? 'RHR: ' + Math.round(rhr) + ' bpm' : 'Rusthartslag onbekend';
+
+      const sleepH = sleep != null ? (sleep/3600).toFixed(1) : null;
+      document.getElementById('dSlaap').textContent = sleepH ? sleepH + 'u' : '—';
+      document.getElementById('dSlaap').style.color = sleepH >= 7.5 ? 'var(--green)' : sleepH >= 6 ? 'var(--orange)' : 'var(--red)';
+      document.getElementById('dSlaapSub').textContent = sleepScore ? 'Score: ' + Math.round(sleepScore) + ' / 100' : 'Score onbekend';
+
+      if (weight) {
+        document.getElementById('dashWeight').textContent = weight.toFixed(1);
+        document.getElementById('wInput').value = weight.toFixed(1);
+        document.getElementById('wInput2').value = weight.toFixed(1);
+      }
+
+      // Garmin pagina
+      document.getElementById('g_hrv').textContent = hrvNum != null ? hrvNum + ' ms' : '—';
+      document.getElementById('g_rhr').textContent = rhr != null ? Math.round(rhr) + ' bpm' : '—';
+      document.getElementById('g_sleep').textContent = sleepH ? sleepH + 'u' : '—';
+      document.getElementById('g_sleepscore').textContent = sleepScore ? Math.round(sleepScore) + ' / 100' : '—';
+      document.getElementById('g_bb').textContent = bbNum != null ? bbNum + ' / 100' : '—';
+      document.getElementById('g_steps').textContent = steps != null ? steps.toLocaleString('nl-NL') : '—';
+      document.getElementById('g_weight').textContent = weight != null ? weight.toFixed(1) + ' kg' : '—';
+      document.getElementById('g_spo2').textContent = spo2 != null ? Math.round(spo2) + '%' : '—';
+      document.getElementById('g_stress').textContent = stress != null ? Math.round(stress) : '—';
+      document.getElementById('g_vo2').textContent = vo2 != null ? vo2 : '—';
+
+      // Wellness trend grafiek
+      const trendEl = document.getElementById('wellnessTrend');
+      const datesEl = document.getElementById('wellnessDates');
+      trendEl.innerHTML = ''; datesEl.innerHTML = '';
+      const maxHRV = Math.max(...data.map(d => d.hrv ?? d.hrvRmssd ?? 0).filter(v => v > 0), 1);
+      data.forEach(d => {
+        const v = d.hrv ?? d.hrvRmssd ?? 0;
+        const h = v > 0 ? Math.round((v / maxHRV) * 50) + 4 : 4;
+        const bar = document.createElement('div');
+        bar.style.cssText = `flex:1;border-radius:3px 3px 0 0;height:${h}px;background:${v > 80 ? 'var(--green)' : v > 50 ? 'var(--orange)' : 'var(--red)'};min-height:4px;`;
+        bar.title = d.id + ': HRV ' + (v || '—');
+        trendEl.appendChild(bar);
+        const lbl = document.createElement('div');
+        lbl.style.cssText = 'flex:1;text-align:center;font-size:9px;color:var(--text3)';
+        lbl.textContent = d.id ? d.id.slice(5) : '';
+        datesEl.appendChild(lbl);
+      });
+
+      document.getElementById('dashLoading').style.display = 'none';
+      document.getElementById('statsGrid').style.display = 'grid';
+      document.getElementById('garminPageLoading').style.display = 'none';
+      document.getElementById('garminPageData').style.display = 'block';
+
+      const now = new Date();
+      document.getElementById('syncTime').textContent = now.toLocaleDateString('nl-NL') + ' ' + now.toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'});
+
+    } catch(e) {
+      document.getElementById('dashLoading').style.display = 'none';
+      document.getElementById('statsGrid').style.display = 'grid';
+      document.getElementById('garminPageLoading').style.display = 'none';
+      document.getElementById('garminPageError').style.display = 'block';
+      document.getElementById('garminErrorMsg').textContent = 'Fout: ' + e.message + '. Controleer of Garmin correct gekoppeld is in Intervals.icu en probeer opnieuw.';
+      document.getElementById('gdot').className = 'gdot off';
+      document.getElementById('garminPillTxt').textContent = 'Garmin — fout';
+      console.error('Intervals.icu error:', e);
+    }
+  }
+
   // ── WEIGHT CHARTS ──
   const weights = [85.0, 84.3, 83.8, 83.2, 82.6, 82.0, null];
   function buildChart(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
+    const el = document.getElementById(id); if (!el) return;
     weights.forEach(w => {
-      const bar = document.createElement('div');
-      bar.className = 'mini-bar';
-      if (w !== null) {
-        const h = Math.round(((w - 81) / (85.5 - 81)) * 42 + 6);
-        bar.style.height = h + 'px';
-        bar.style.background = w < 84 ? '#16a34a' : '#f97316';
-        bar.title = w + ' kg';
-      } else {
-        bar.style.height = '6px';
-        bar.style.background = '#e5e5e3';
-      }
-      el.appendChild(bar);
+      const b = document.createElement('div'); b.className = 'mini-bar';
+      if (w != null) { b.style.height = Math.round(((w-81)/(85.5-81))*42+6)+'px'; b.style.background = w < 84 ? '#16a34a' : '#f97316'; b.title = w+' kg'; }
+      else { b.style.height = '6px'; b.style.background = '#e5e5e3'; }
+      el.appendChild(b);
     });
   }
-  buildChart('weightChart');
-  buildChart('weightChart2');
+  buildChart('weightChart'); buildChart('weightChart2');
 
-  // ── SAVE WEIGHT ──
   function saveWeight() {
     const v = parseFloat(document.getElementById('wInput').value);
-    if (v > 50 && v < 200) {
-      document.getElementById('dashWeight').textContent = v.toFixed(1);
-      const msg = document.getElementById('wMsg');
-      msg.style.display = 'inline';
-      setTimeout(() => msg.style.display = 'none', 2000);
-      updateLastBar('weightChart', v);
-    }
+    if (v > 50 && v < 200) { document.getElementById('dashWeight').textContent = v.toFixed(1); const m = document.getElementById('wMsg'); m.style.display='inline'; setTimeout(()=>m.style.display='none',2000); }
   }
   function saveWeight2() {
     const v = parseFloat(document.getElementById('wInput2').value);
-    if (v > 50 && v < 200) {
-      document.getElementById('dashWeight').textContent = v.toFixed(1);
-      const msg = document.getElementById('wMsg2');
-      msg.style.display = 'inline';
-      setTimeout(() => msg.style.display = 'none', 2000);
-      updateLastBar('weightChart', v);
-      updateLastBar('weightChart2', v);
-    }
-  }
-  function updateLastBar(id, v) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const bars = el.querySelectorAll('.mini-bar');
-    const last = bars[bars.length - 1];
-    const h = Math.min(Math.round(((v - 81) / (85.5 - 81)) * 42 + 6), 48);
-    last.style.height = h + 'px';
-    last.style.background = v < 84 ? '#16a34a' : '#f97316';
-    last.style.opacity = '1';
+    if (v > 50 && v < 200) { document.getElementById('dashWeight').textContent = v.toFixed(1); const m = document.getElementById('wMsg2'); m.style.display='inline'; setTimeout(()=>m.style.display='none',2000); }
   }
 
-  // ── SELECT DAY ──
   function selectDay(d, card) {
     document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
     card.classList.add('active');
-    ['ma','di','wo','do','vr','za','zo'].forEach(k => {
-      const el = document.getElementById('day-' + k);
-      if (el) el.style.display = k === d ? '' : 'none';
-    });
+    ['ma','di','wo','do','vr','za','zo'].forEach(k => { const el = document.getElementById('day-'+k); if(el) el.style.display = k===d?'':'none'; });
   }
 
-  // ── GARMIN MODAL ──
-  function openGarminModal() {
-    document.getElementById('garminModal').classList.add('open');
-  }
-  function closeGarminModal() {
-    document.getElementById('garminModal').classList.remove('open');
-  }
-  function closeModalOutside(e) {
-    if (e.target.id === 'garminModal') closeGarminModal();
-  }
-
-  let garminConnected = false;
-  function connectGarmin() {
-    const email = document.getElementById('garminEmail').value;
-    const pass = document.getElementById('garminPass').value;
-    if (!email || !pass) { alert('Vul je e-mail en wachtwoord in.'); return; }
-
-    const btn = document.querySelector('.modal-submit');
-    btn.textContent = 'Verbinding maken...';
-    btn.disabled = true;
-
-    setTimeout(() => {
-      document.getElementById('modalForm').style.display = 'none';
-      document.getElementById('modalSuccess').style.display = 'block';
-      garminConnected = true;
-
-      // Update UI
-      document.getElementById('garminBanner').style.display = 'none';
-      document.getElementById('garminStrip').classList.add('visible');
-      document.getElementById('sidebarDot').classList.remove('disconnected');
-      document.getElementById('sidebarDot').classList.add('connected');
-      document.getElementById('sidebarGarminTxt').textContent = 'Garmin verbonden';
-      document.getElementById('garminPageTip').style.display = 'none';
-      document.getElementById('garminDataSection').style.display = '';
-      document.getElementById('syncTime').textContent = new Date().toLocaleDateString('nl-NL') + ', ' + new Date().toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'});
-
-      setTimeout(() => closeGarminModal(), 2500);
-    }, 1800);
-  }
-
-  // ── SYNC ──
-  function doSync() {
-    if (!garminConnected) { openGarminModal(); return; }
-    const dot = document.getElementById('sidebarDot');
-    dot.style.background = '#f97316';
-    setTimeout(() => {
-      dot.style.background = '#0d9488';
-      document.getElementById('syncTime').textContent = new Date().toLocaleDateString('nl-NL') + ', ' + new Date().toLocaleTimeString('nl-NL', {hour:'2-digit',minute:'2-digit'});
-    }, 1400);
-  }
-
-  // ── KEYBOARD ──
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeGarminModal();
-    if (e.key === 'Enter' && document.activeElement.id === 'wInput') saveWeight();
-    if (e.key === 'Enter' && document.activeElement.id === 'wInput2') saveWeight2();
+    if (e.key==='Enter' && document.activeElement.id==='wInput') saveWeight();
+    if (e.key==='Enter' && document.activeElement.id==='wInput2') saveWeight2();
   });
+
+  // ── AUTO LOAD ──
+  loadGarminData();
 </script>
 </body>
 </html>
