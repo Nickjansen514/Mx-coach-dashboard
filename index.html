@@ -597,23 +597,31 @@ async function loadWellness() {
     if (data.error) throw new Error(data.error);
     if (!Array.isArray(data) || data.length === 0) throw new Error('Geen wellness data gevonden. Zorg dat Garmin goed gesynchroniseerd is in Intervals.icu.');
 
-    const latest = [...data].reverse().find(d =>
-      d.hrv != null || d.restingHR != null || d.sleepSecs != null || d.steps != null
-    ) || data[data.length - 1];
+    const hasData = d => d.hrv != null || d.hrvRmssd != null || d.restingHR != null || d.rhr != null ||
+      d.sleepSecs != null || d.sleep != null || d.steps != null || d.bodyBattery != null ||
+      d.bb != null || d.vo2max != null || d.weight != null;
+    const latest = [...data].reverse().find(hasData) || data[data.length - 1];
 
-    const n = (v, d=0) => v != null ? Number(v).toFixed(d) : null;
-    const bb = n(latest.bodyBattery ?? latest.bb);
-    const hrv = n(latest.hrv ?? latest.hrvRmssd);
-    const rhr = n(latest.restingHR ?? latest.rhr);
-    const sleep = latest.sleepSecs != null ? (latest.sleepSecs/3600).toFixed(1) : null;
-    const sleepScore = n(latest.sleepScore);
-    const steps = latest.steps;
-    const vo2 = latest.vo2max ?? latest.fitnessAge ?? null;
-    const spo2 = n(latest.spO2);
-    const stress = n(latest.avgStress ?? latest.stress);
-    const weight = latest.weight != null ? Number(latest.weight).toFixed(1) : null;
-    const kcal = n(latest.activeCalories ?? latest.calories);
-    const fitness = n(latest.fitnessAge ?? latest.ctlLoad);
+    console.log('DEBUG wellness latest:', JSON.stringify(latest));
+    const n = (v, d=0) => v != null && v !== 0 ? Number(v).toFixed(d) : null;
+    const pick = (...keys) => { for(const k of keys){ if(latest[k] != null && latest[k] !== 0) return latest[k]; } return null; };
+
+    const bb = n(pick('bodyBattery','bb','bodyBatteryHighest','garminBodyBattery'));
+    const hrv = n(pick('hrv','hrvRmssd','hrv4training','garminHrv','sdnn','rmssd','hrvScore'));
+    const rhr = n(pick('restingHR','rhr','restingHeartRate','garminRestingHR'));
+
+    const rawSleep = pick('sleepSecs','sleepSeconds','sleep','totalSleepTime','garminSleep','sleepDuration');
+    const sleep = rawSleep != null ? (Number(rawSleep) > 100 ? (Number(rawSleep)/3600).toFixed(1) : Number(rawSleep).toFixed(1)) : null;
+    const sleepScore = n(pick('sleepScore','garminSleepScore','sleepQuality'));
+
+    const steps = pick('steps','garminSteps','totalSteps') ?? null;
+    const vo2 = pick('vo2max','garminVo2max','vo2Max','maxVO2');
+    const spo2 = n(pick('spO2','spo2','avgSpO2','garminSpO2','bloodOxygen'));
+    const stress = n(pick('avgStress','stress','garminStress','stressScore','avgStressLevel'));
+    const rawWeight = pick('weight','garminWeight','bodyWeight');
+    const weight = rawWeight != null ? Number(rawWeight).toFixed(1) : null;
+    const kcal = n(pick('activeCalories','calories','activeKcal','garminCalories','caloriesActive'));
+    const fitness = n(pick('fitnessAge','ctlLoad','ctl','trainingLoad'));
 
     const col = (v, g, o) => v == null ? 'var(--text)' : Number(v) >= g ? 'var(--green)' : Number(v) >= o ? 'var(--orange)' : 'var(--red)';
 
@@ -681,9 +689,10 @@ async function loadWellness() {
     const tEl = document.getElementById('hrvTrend');
     const dEl = document.getElementById('hrvDates');
     tEl.innerHTML = ''; dEl.innerHTML = '';
-    const maxH = Math.max(...data.map(d => Number(d.hrv ?? d.hrvRmssd ?? 0)).filter(v=>v>0), 1);
+    const getHRV = d => Number(d.hrv ?? d.hrvRmssd ?? d.hrv4training ?? d.garminHrv ?? d.sdnn ?? d.rmssd ?? d.hrvScore ?? 0);
+    const maxH = Math.max(...data.map(getHRV).filter(v=>v>0), 1);
     data.forEach(d => {
-      const v = Number(d.hrv ?? d.hrvRmssd ?? 0);
+      const v = getHRV(d);
       const h = v > 0 ? Math.round((v/maxH)*52)+4 : 4;
       const bar = document.createElement('div');
       bar.style.cssText = `flex:1;border-radius:3px 3px 0 0;height:${h}px;background:${v>80?'var(--green)':v>50?'var(--orange)':'var(--red)'};min-height:4px;`;
