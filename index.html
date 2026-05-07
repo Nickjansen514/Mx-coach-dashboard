@@ -383,8 +383,8 @@
   // ── CONFIG ──
   const ATHLETE_ID = 'i575727';
   const API_KEY    = '4ydn5h3mzd246sch2pejmqr8j';
-  const BASE       = 'https://intervals.icu/api/v1/athlete/' + ATHLETE_ID;
-  const AUTH       = 'Basic ' + btoa('API_KEY:' + API_KEY);
+  const BASE       = '/api/wellness';
+  const AUTH       = '';
 
   // ── NAVIGATION ──
   function nav(page, btn) {
@@ -410,9 +410,7 @@
     document.getElementById('garminPageError').style.display = 'none';
 
     try {
-      const res = await fetch(`${BASE}/wellness?oldest=${weekAgo}&newest=${todayStr}`, {
-        headers: { 'Authorization': AUTH }
-      });
+      const res = await fetch(`${BASE}?oldest=${weekAgo}&newest=${todayStr}`);
 
       if (!res.ok) throw new Error('HTTP ' + res.status + ' — controleer API key');
       const data = await res.json();
