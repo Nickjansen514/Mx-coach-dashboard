@@ -464,6 +464,22 @@
 <!-- ══ ACTIVITEITEN ══ -->
 <div class="page" id="page-activiteiten">
   <div class="page-hdr"><div><h2>Activiteiten</h2><div class="sub">Laatste activiteiten via Garmin → Intervals.icu</div></div><button class="sync-btn" onclick="loadAll()">↻ Sync nu</button></div>
+
+  <!-- Progressie grafiek hardlopen -->
+  <div class="card" style="margin-bottom:16px" id="runProgressCard" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div><div style="font-size:13px;font-weight:700">🏃 Hardloop progressie — pace per run</div><div style="font-size:11px;color:var(--text2);margin-top:2px">Lager = sneller · doel: onder 5:30/km</div></div>
+      <span class="badge bg" id="paceImprove"></span>
+    </div>
+    <div id="paceChart" style="display:flex;align-items:flex-end;gap:6px;height:80px;margin-bottom:6px"></div>
+    <div id="paceLabels" style="display:flex;gap:6px;font-size:9px;color:var(--text3)"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:11px;color:var(--text2)">
+      <span>Beste pace: <strong id="bestPace" style="color:var(--green)">—</strong></span>
+      <span>Gem. afstand: <strong id="avgDist">—</strong></span>
+      <span>Totaal runs: <strong id="totalRuns">—</strong></span>
+    </div>
+  </div>
+
   <div class="loading" id="actLoad"><div class="spin"></div>Activiteiten laden...</div>
   <div id="actErr" style="display:none" class="tip tr">⚠️ <div id="actErrMsg"></div></div>
   <div id="actList"></div>
@@ -732,13 +748,29 @@ async function loadWellness() {
 }
 
 // ── ACTIVITIES ──
-const ACT_ICONS = { Ride:'🚴', Run:'🏃', WeightTraining:'🏋️', Workout:'💪', Walk:'🚶', Swim:'🏊', MountainBikeRide:'🏍️', Motocross:'🏍️' };
+const ACT_ICONS = { Ride:'🚴', Run:'🏃', WeightTraining:'🏋️', Workout:'💪', Walk:'🚶', Swim:'🏊', MountainBikeRide:'🏍️', Motocross:'🏍️', VirtualRide:'🚴', Cycling:'🚴' };
+const ACT_COLORS = { Run:'var(--blue)', Ride:'var(--orange)', VirtualRide:'var(--orange)', WeightTraining:'var(--purple)', Walk:'var(--green)' };
+
+function secPerKmToPace(secPerMeter) {
+  if (!secPerMeter || secPerMeter <= 0) return null;
+  const secPerKm = secPerMeter * 1000;
+  const min = Math.floor(secPerKm / 60);
+  const sec = Math.round(secPerKm % 60);
+  return `${min}:${sec.toString().padStart(2,'0')}`;
+}
+
+function paceToSeconds(paceStr) {
+  if (!paceStr) return null;
+  const [m, s] = paceStr.split(':').map(Number);
+  return m * 60 + s;
+}
+
 async function loadActivities() {
   document.getElementById('actLoad').style.display = 'flex';
   document.getElementById('actErr').style.display = 'none';
   document.getElementById('actList').innerHTML = '';
   try {
-    const monthAgo = new Date(today - 30*24*3600*1000).toISOString().split('T')[0];
+    const monthAgo = new Date(today - 90*24*3600*1000).toISOString().split('T')[0];
     const res = await fetch(`${PROXY}?oldest=${monthAgo}&newest=${todayStr}&type=activities`);
     const data = await res.json();
     if (data.error) throw new Error(data.error);
@@ -747,22 +779,88 @@ async function loadActivities() {
       document.getElementById('actLoad').style.display = 'none';
       return;
     }
+
+    // ── PROGRESSIE GRAFIEK (alleen runs) ──
+    const runs = data.filter(a => a.type === 'Run' && a.distance > 0);
+    if (runs.length > 0) {
+      document.getElementById('runProgressCard').style.display = '';
+      const paces = runs.map(r => {
+        const pace = secPerKmToPace(r.average_speed ? 1/r.average_speed : null);
+        return { date: r.start_date_local ? new Date(r.start_date_local).toLocaleDateString('nl-NL',{day:'numeric',month:'short'}) : '', pace, secs: paceToSeconds(pace), dist: r.distance ? (r.distance/1000).toFixed(1) : 0 };
+      }).filter(p => p.secs);
+
+      if (paces.length > 0) {
+        const maxSec = Math.max(...paces.map(p => p.secs));
+        const minSec = Math.min(...paces.map(p => p.secs));
+        const chartEl = document.getElementById('paceChart');
+        const lblEl = document.getElementById('paceLabels');
+        chartEl.innerHTML = ''; lblEl.innerHTML = '';
+
+        paces.slice(-10).forEach(p => {
+          const normalized = maxSec === minSec ? 60 : Math.round(((maxSec - p.secs) / (maxSec - minSec)) * 60) + 10;
+          const isLast = p === paces.slice(-10)[paces.slice(-10).length-1];
+          const bar = document.createElement('div');
+          bar.style.cssText = `flex:1;border-radius:4px 4px 0 0;height:${normalized}px;background:${p.secs===minSec?'var(--green)':isLast?'var(--blue)':'var(--border2)'};position:relative;cursor:default;transition:background .2s;`;
+          bar.title = `${p.date}: ${p.pace}/km · ${p.dist}km`;
+          const lbl = document.createElement('div');
+          lbl.style.cssText = 'position:absolute;top:-18px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:700;white-space:nowrap;color:var(--text2)';
+          lbl.textContent = p.pace;
+          bar.appendChild(lbl);
+          chartEl.appendChild(bar);
+          const dl = document.createElement('div');
+          dl.style.cssText = 'flex:1;text-align:center';
+          dl.textContent = p.date;
+          lblEl.appendChild(dl);
+        });
+
+        const bestPace = paces.reduce((a,b) => a.secs < b.secs ? a : b);
+        const firstPace = paces[0];
+        const lastPace = paces[paces.length-1];
+        const improved = firstPace.secs - lastPace.secs;
+        document.getElementById('bestPace').textContent = bestPace.pace + '/km';
+        document.getElementById('avgDist').textContent = (paces.reduce((s,p)=>s+Number(p.dist),0)/paces.length).toFixed(1) + ' km';
+        document.getElementById('totalRuns').textContent = runs.length + ' runs';
+        document.getElementById('paceImprove').textContent = improved > 0 ? `↑ ${Math.round(improved)}s sneller geworden` : improved < -5 ? `↓ ${Math.abs(Math.round(improved))}s langzamer` : 'Stabiel tempo';
+        document.getElementById('paceImprove').className = 'badge ' + (improved > 0 ? 'bg' : improved < -5 ? 'br' : 'bt');
+      }
+    }
+
+    // ── ACTIVITEITEN LIJST ──
     const listEl = document.getElementById('actList');
-    data.slice(0,15).forEach(a => {
+    data.slice(0,20).forEach(a => {
       const icon = ACT_ICONS[a.type] || '🏅';
-      const dist = a.distance ? (a.distance/1000).toFixed(1) + ' km' : '';
-      const dur = a.moving_time ? Math.round(a.moving_time/60) + ' min' : '';
-      const hr = a.average_heartrate ? Math.round(a.average_heartrate) + ' bpm' : '';
+      const color = ACT_COLORS[a.type] || 'var(--text3)';
+      const dist = a.distance ? (a.distance/1000).toFixed(1) + ' km' : null;
+      const dur = a.moving_time ? Math.round(a.moving_time/60) + ' min' : null;
+      const hr = a.average_heartrate ? Math.round(a.average_heartrate) + ' bpm' : null;
       const date = a.start_date_local ? new Date(a.start_date_local).toLocaleDateString('nl-NL',{weekday:'short',day:'numeric',month:'short'}) : '';
+
+      // Pace berekenen
+      let pace = null;
+      if (a.type === 'Run' && a.average_speed && a.average_speed > 0) {
+        pace = secPerKmToPace(1 / a.average_speed);
+      }
+
+      // Intensiteit badge
+      const hrNum = a.average_heartrate;
+      let intensityBadge = '';
+      if (hrNum) {
+        if (hrNum < 130) intensityBadge = '<span class="badge bg" style="margin-left:6px">Zone 1-2</span>';
+        else if (hrNum < 150) intensityBadge = '<span class="badge bt" style="margin-left:6px">Zone 3</span>';
+        else if (hrNum < 165) intensityBadge = '<span class="badge bo" style="margin-left:6px">Zone 4</span>';
+        else intensityBadge = '<span class="badge br" style="margin-left:6px">Zone 5</span>';
+      }
+
       listEl.innerHTML += `
-        <div class="act-card">
+        <div class="act-card" style="border-left:3px solid ${color}">
           <div class="act-icon">${icon}</div>
           <div class="act-info">
-            <div class="act-name">${a.name || a.type || 'Activiteit'}</div>
+            <div class="act-name">${a.name || a.type || 'Activiteit'}${intensityBadge}</div>
             <div class="act-sub">${date}${a.type?' · '+a.type:''}</div>
           </div>
           <div class="act-stats">
             ${dist?`<div class="act-stat"><div class="v">${dist}</div><div class="l">afstand</div></div>`:''}
+            ${pace?`<div class="act-stat"><div class="v" style="color:var(--blue)">${pace}/km</div><div class="l">pace</div></div>`:''}
             ${dur?`<div class="act-stat"><div class="v">${dur}</div><div class="l">duur</div></div>`:''}
             ${hr?`<div class="act-stat"><div class="v">${hr}</div><div class="l">gem HF</div></div>`:''}
           </div>
@@ -773,6 +871,7 @@ async function loadActivities() {
     document.getElementById('actLoad').style.display = 'none';
     document.getElementById('actErr').style.display = 'flex';
     document.getElementById('actErrMsg').textContent = e.message;
+    console.error('Activities error:', e);
   }
 }
 
