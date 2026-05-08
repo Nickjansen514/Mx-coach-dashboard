@@ -618,25 +618,38 @@ async function loadWellness() {
       d.bb != null || d.vo2max != null || d.weight != null;
     const latest = [...data].reverse().find(hasData) || data[data.length - 1];
 
-    console.log('DEBUG wellness latest:', JSON.stringify(latest));
+    // Debug: toon alle non-null velden
+    const nonNull = Object.fromEntries(Object.entries(latest).filter(([k,v]) => v != null && v !== false));
+    console.log('GARMIN VELDEN (niet-leeg):', JSON.stringify(nonNull, null, 2));
     const n = (v, d=0) => v != null && v !== 0 ? Number(v).toFixed(d) : null;
     const pick = (...keys) => { for(const k of keys){ if(latest[k] != null && latest[k] !== 0) return latest[k]; } return null; };
 
-    const bb = n(pick('bodyBattery','bb','bodyBatteryHighest','garminBodyBattery'));
-    const hrv = n(pick('hrv','hrvRmssd','hrv4training','garminHrv','sdnn','rmssd','hrvScore'));
-    const rhr = n(pick('restingHR','rhr','restingHeartRate','garminRestingHR'));
+    // Intervals.icu wellness API veldnamen (gedocumenteerd)
+    const bb = n(pick('bodyBattery','bb','bodyBatteryHighest'));
+    const hrv = n(pick('hrv','hrvRmssd','hrv4training','sdnn','rmssd'));
+    const rhr = n(pick('restingHR','rhr','restingHeartRate'));
 
-    const rawSleep = pick('sleepSecs','sleepSeconds','sleep','totalSleepTime','garminSleep','sleepDuration');
-    const sleep = rawSleep != null ? (Number(rawSleep) > 100 ? (Number(rawSleep)/3600).toFixed(1) : Number(rawSleep).toFixed(1)) : null;
-    const sleepScore = n(pick('sleepScore','garminSleepScore','sleepQuality'));
+    const rawSleep = pick('sleepSecs','sleepSeconds','sleep','totalSleepTime','sleepDuration');
+    const sleep = rawSleep != null
+      ? (Number(rawSleep) > 100 ? (Number(rawSleep)/3600).toFixed(1) : Number(rawSleep).toFixed(1))
+      : null;
+    const sleepScore = n(pick('sleepScore','sleepQuality','sleepScoreValue'));
 
-    const steps = pick('steps','garminSteps','totalSteps') ?? null;
-    const vo2 = pick('vo2max','garminVo2max','vo2Max','maxVO2');
-    const spo2 = n(pick('spO2','spo2','avgSpO2','garminSpO2','bloodOxygen'));
-    const stress = n(pick('avgStress','stress','garminStress','stressScore','avgStressLevel'));
-    const rawWeight = pick('weight','garminWeight','bodyWeight');
+    const steps = pick('steps','totalSteps') ?? null;
+
+    // VO2max komt vaak als getal bv 79.9 direct uit Garmin wellness
+    const rawVo2 = pick('vo2max','vo2Max','maxVO2','garminVo2max');
+    const vo2 = rawVo2 != null ? Number(rawVo2).toFixed(1) : null;
+
+    const spo2 = n(pick('spO2','spo2','avgSpO2','bloodOxygen'));
+
+    // Stress — Intervals.icu slaat dit op als 'avgStress' of 'stress'
+    const rawStress = pick('avgStress','stress','stressScore','avgStressLevel','garminStress');
+    const stress = rawStress != null ? Number(rawStress).toFixed(0) : null;
+
+    const rawWeight = pick('weight','bodyWeight','garminWeight');
     const weight = rawWeight != null ? Number(rawWeight).toFixed(1) : null;
-    const kcal = n(pick('activeCalories','calories','activeKcal','garminCalories','caloriesActive'));
+    const kcal = n(pick('activeCalories','calories','activeKcal','caloriesActive'));
     const fitness = n(pick('fitnessAge','ctlLoad','ctl','trainingLoad'));
 
     const col = (v, g, o) => v == null ? 'var(--text)' : Number(v) >= g ? 'var(--green)' : Number(v) >= o ? 'var(--orange)' : 'var(--red)';
@@ -673,14 +686,22 @@ async function loadWellness() {
     document.getElementById('d_sleep').style.color = col(sleepN, 7.5, 6);
     document.getElementById('d_sleep_sub').textContent = sleepScore ? 'Score: ' + sleepScore + ' / 100' : rhr ? 'Doel: 8u per nacht' : '—';
 
-    document.getElementById('d_fitness').textContent = vo2 ?? '—';
-    document.getElementById('d_fitness').style.color = vo2 ? 'var(--blue)' : 'var(--text)';
-    document.getElementById('d_fitness_sub').textContent = vo2 ? 'VO2max schatting' : 'Sync meer activiteiten';
+    // VO2max — altijd tonen, ook als het niet verandert
+    const vo2Display = vo2 ?? (latest.vo2max != null ? Number(latest.vo2max).toFixed(1) : null);
+    document.getElementById('d_fitness').textContent = vo2Display ?? '—';
+    document.getElementById('d_fitness').style.color = vo2Display ? 'var(--blue)' : 'var(--text)';
+    document.getElementById('d_fitness_sub').textContent = vo2Display
+      ? `VO2max: ${vo2Display} · Uitstekend`
+      : 'Sync activiteiten voor VO2max';
 
-    document.getElementById('d_vo2').textContent = vo2 ?? '—';
+    document.getElementById('d_vo2').textContent = vo2Display ?? '—';
     document.getElementById('d_steps').textContent = steps ? steps.toLocaleString('nl-NL') : '—';
     document.getElementById('d_steps_sub').textContent = steps ? (steps >= 10000 ? 'Doel gehaald ✓' : `Nog ${(10000-steps).toLocaleString('nl-NL')} tot doel`) : '—';
-    document.getElementById('d_stress').textContent = stress ?? '—';
+    // Stress altijd tonen
+    document.getElementById('d_stress').textContent = stress != null ? stress : '—';
+    document.getElementById('d_stress').style.color = stress != null
+      ? (Number(stress) < 25 ? 'var(--green)' : Number(stress) < 50 ? 'var(--orange)' : 'var(--red)')
+      : 'var(--text)';
     if (weight) {
       document.getElementById('dashWeight').textContent = weight;
       document.getElementById('wInput').value = weight;
