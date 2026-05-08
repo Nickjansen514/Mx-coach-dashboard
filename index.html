@@ -296,6 +296,10 @@
     <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-top:6px"><span>W1</span><span>W2</span><span>W3</span><span>W4</span><span>W5</span><span>W6</span><span>Nu</span></div>
   </div>
 
+  <!-- Week overzicht -->
+  <div class="slbl">📅 Week overzicht — 7 dagen</div>
+  <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px" id="weekOverview"></div>
+
   <!-- Vandaag -->
   <div class="slbl" id="todaySessionLabel">📅 Vandaag</div>
   <div class="tip to" id="todayTip">🏍️ <div id="todayTipTxt">Laden...</div></div>
@@ -311,15 +315,41 @@
     <div class="li"><div class="ld" style="background:var(--purple)"></div>Gym</div>
     <div class="li"><div class="ld" style="background:var(--text3)"></div>Herstel</div>
   </div>
-  <div class="week-grid">
-    <div class="dc gym" onclick="selectDay('ma',this)"><div class="dn">MA 4</div><div class="di">🏋️</div><div class="dt">Full body kracht</div><div class="dg">Garmin ✓</div><div class="ddot"></div></div>
-    <div class="dc run" onclick="selectDay('di',this)"><div class="dn">DI 5</div><div class="di">🏃</div><div class="dt">Hardlopen HYROX</div><div class="dg">Garmin ✓</div><div class="ddot"></div></div>
-    <div class="dc moto" onclick="selectDay('wo',this)"><div class="dn">WO 6</div><div class="di">🏍️</div><div class="dt">Motordag + gym</div></div>
-    <div class="dc gym active" onclick="selectDay('do',this)"><div class="dn">DO 7</div><div class="di">🏋️</div><div class="dt">Upper body + core</div><div class="dg">Vandaag</div></div>
-    <div class="dc rest" onclick="selectDay('vr',this)"><div class="dn">VR 8</div><div class="di">😴</div><div class="dt">Herstel + mobiliteit</div></div>
-    <div class="dc moto" onclick="selectDay('za',this)"><div class="dn">ZA 9</div><div class="di">🏍️</div><div class="dt">Motordag race-sim</div></div>
-    <div class="dc moto" onclick="selectDay('zo',this)"><div class="dn">ZO 10</div><div class="di">🏍️</div><div class="dt">Motordag techniek</div></div>
-  </div>
+  <div class="week-grid" id="schemaWeekGrid"></div>
+  <script>
+  // Dynamische week grid op basis van huidige dag
+  (function(){
+    const grid = document.getElementById('schemaWeekGrid');
+    if(!grid) return;
+    const dayKeys = ['zo','ma','di','wo','do','vr','za'];
+    const dayNums = [0,1,2,3,4,5,6];
+    const now = new Date();
+    const dow = now.getDay();
+    // Bereken datum van ma deze week
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (dow===0?6:dow-1));
+    const labels = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+    const types  = ['gym','run','moto','gym','rest','moto','moto'];
+    const icons  = ['🏋️','🏃','🏍️','🏋️','😴','🏍️','🏍️'];
+    const descs  = ['Krachttraining','Hardlopen','Motordag + gym','Krachttraining','Herstel','Race simulatie','Techniekdag'];
+    const colors = {gym:'var(--purple)',run:'var(--blue)',moto:'var(--orange)',rest:'var(--text3)'};
+    const dayDows= [1,2,3,4,5,6,0]; // ma=1,di=2,wo=3,do=4,vr=5,za=6,zo=0
+    labels.forEach((lbl,i)=>{
+      const d = new Date(monday); d.setDate(monday.getDate()+i);
+      const dateStr = d.getDate()+'/'+( d.getMonth()+1);
+      const isToday = d.toDateString()===now.toDateString();
+      const isPast  = d < new Date(now.toDateString());
+      const done = isPast && !isToday;
+      grid.innerHTML+=`<div class="dc ${types[i]}${isToday?' active':''}" onclick="selectDay('${dayKeys[dayDows.indexOf(d.getDay())]}',this)">
+        <div class="dn">${lbl} ${dateStr}</div>
+        <div class="di">${icons[i]}</div>
+        <div class="dt">${descs[i]}</div>
+        ${isToday?'<div class="dg" style="color:var(--orange);font-weight:700">Vandaag</div>':''}
+        ${done?'<div class="ddot"></div>':''}
+      </div>`;
+    });
+  })();
+  </script>
 
   <div id="day-do">
     <div class="tip to">🏋️ <div><strong>Donderdag — Upper body + core</strong><br>Lichte dag voor het weekend met 2 zware motordagen za+zo. Garmin stress score wordt hoog bij kracht — normaal.</div></div>
@@ -520,13 +550,13 @@ const PROXY = '/api/wellness';
 const DAYS_NL = ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
 const DAYS_SHORT = ['zo','ma','di','wo','do','vr','za'];
 const SCHEMA_MAP = {
-  0: { label:'Zondag — Motordag techniek',   tip:'🏍️ Techniekdag. Secties, sprongen, lijnkeuze. Rustiger tempo.', cards:[{ic:'🏍️',t:'Techniekdag',s:'90 min · lager tempo'},{ic:'🧘',t:'Cool-down',s:'Foam rollen + stretchen'},{ic:'😴',t:'Vroeg slapen',s:'Morgen hersteldag'}] },
-  1: { label:'Maandag — Full body kracht',   tip:'🏋️ Explosieve kracht + grip. Basis voor controle op de motor.', cards:[{ic:'🏋️',t:'Full body kracht',s:'60 min gym'},{ic:'💪',t:'Focus',s:'Squat · row · bench · deadlift'},{ic:'⏱️',t:'Totaal',s:'~70 min incl. warm-up'}] },
-  2: { label:'Dinsdag — Hardlopen HYROX',    tip:'🏃 Zone 2 duurloop + optioneel intervallen. HYROX-basis onderhouden.', cards:[{ic:'🏃',t:'Hardlopen',s:'45–60 min Zone 2'},{ic:'❤️',t:'Hartslag doel',s:'HF 130–145 bpm'},{ic:'📱',t:'Garmin running',s:'Cadans 170–180 spm'}] },
-  3: { label:'Woensdag — Motordag + gym',    tip:'🏍️ Motor eerst, gym erna. Herlings-methode. Garmin traceert HF op de motor.', cards:[{ic:'🏍️',t:'2 motos',s:'2× 20 min · starts + techniek'},{ic:'💪',t:'Grip gym erna',s:'Deadlift · pull-ups · farmers carry'},{ic:'⏱️',t:'Totaal',s:'~2.5u incl. warm-up'}] },
-  4: { label:'Donderdag — Upper body + core', tip:'🏋️ Schouders, armen, romp. Lichte dag voor het motorweekend.', cards:[{ic:'💪',t:'Upper body',s:'50 min gym'},{ic:'🎯',t:'Focus',s:'Pull-ups · press · core'},{ic:'😴',t:'Vroeg slapen',s:'Morgen hersteldag'}] },
-  5: { label:'Vrijdag — Actief herstel',      tip:'😴 Rust is net zo belangrijk als training. Vertrouw je Garmin Body Battery.', cards:[{ic:'🧘',t:'Mobiliteit',s:'30 min foam rollen + yoga'},{ic:'🚶',t:'Wandeling',s:'20–30 min rustig buiten'},{ic:'😴',t:'Slaap doel',s:'8+ uur · morgen ZA motordag!'}] },
-  6: { label:'Zaterdag — Motordag race-sim', tip:'🏍️ Twee volledige motos op racetempo. Start training. Max inspanning.', cards:[{ic:'🏍️',t:'Race simulatie',s:'2× 30 min racetempo'},{ic:'🚀',t:'Start training',s:'15 starts · holeshot oefenen'},{ic:'⏱️',t:'Totaal',s:'2u+ op de motor'}] },
+  0: { label:'Zondag — Motordag techniek',    tip:'🏍️ Techniekdag. Secties, sprongen, lijnkeuze. Rustiger tempo.', cards:[{ic:'🏍️',t:'Techniekdag',s:'90 min · lager tempo'},{ic:'🎯',t:'Focus',s:'Lijnkeuze · sprongen · secties'},{ic:'😴',t:'Vroeg slapen',s:'Morgen hersteldag ma'}] },
+  1: { label:'Maandag — Krachttraining 💪',   tip:'🏋️ Coach schema: Maandag krachttraining. Explosieve kracht + grip voor motorcross.', cards:[{ic:'🏋️',t:'Krachttraining',s:'Coach schema · ~60 min'},{ic:'💪',t:'Focus',s:'Squat · deadlift · bench · row'},{ic:'⏱️',t:'Totaal',s:'~70 min incl. warm-up'}] },
+  2: { label:'Dinsdag — Hardlopen HYROX',     tip:'🏃 Zone 2 duurloop + optioneel intervallen. HYROX-basis onderhouden.', cards:[{ic:'🏃',t:'Hardlopen',s:'45–60 min Zone 2'},{ic:'❤️',t:'Hartslag doel',s:'HF 130–145 bpm'},{ic:'📱',t:'Garmin running',s:'Cadans 170–180 spm'}] },
+  3: { label:'Woensdag — Motordag + grip',    tip:'🏍️ Motor eerst, grip gym erna. Herlings-methode. Garmin traceert HF op de motor.', cards:[{ic:'🏍️',t:'2 motos',s:'2× 20 min · starts + techniek'},{ic:'💪',t:'Grip gym erna',s:'Deadlift · pull-ups · farmers carry'},{ic:'⏱️',t:'Totaal',s:'~2.5u incl. warm-up'}] },
+  4: { label:'Donderdag — Krachttraining 💪', tip:'🏋️ Coach schema: Donderdag krachttraining. Lichte dag voor het motorweekend za+zo.', cards:[{ic:'🏋️',t:'Krachttraining',s:'Coach schema · ~60 min'},{ic:'💪',t:'Focus',s:'Upper body · core · stabiliteit'},{ic:'😴',t:'Vroeg slapen',s:'Morgen hersteldag vr'}] },
+  5: { label:'Vrijdag — Actief herstel',       tip:'😴 Rust is net zo belangrijk als training. Vertrouw je Garmin Body Battery.', cards:[{ic:'🧘',t:'Mobiliteit',s:'30 min foam rollen + yoga'},{ic:'🚶',t:'Wandeling',s:'20–30 min rustig buiten'},{ic:'😴',t:'Slaap doel',s:'8+ uur · morgen ZA motordag!'}] },
+  6: { label:'Zaterdag — Motordag race-sim',  tip:'🏍️ Twee volledige motos op racetempo. Start training. Max inspanning.', cards:[{ic:'🏍️',t:'Race simulatie',s:'2× 30 min racetempo'},{ic:'🚀',t:'Start training',s:'15 starts · holeshot oefenen'},{ic:'⏱️',t:'Totaal',s:'2u+ op de motor'}] },
 };
 
 // ── NAVIGATION ──
@@ -922,6 +952,34 @@ document.addEventListener('keydown', e => {
   if(e.key==='Enter'&&document.activeElement.id==='wInput') saveWeight();
   if(e.key==='Enter'&&document.activeElement.id==='wInput2') saveWeight2();
 });
+
+// ── WEEK OVERZICHT ──
+  const WEEK_SCHEMA = [
+    {day:'Ma',type:'gym', icon:'🏋️',label:'Kracht'},
+    {day:'Di',type:'run', icon:'🏃',label:'Hardlopen'},
+    {day:'Wo',type:'moto',icon:'🏍️',label:'Motordag'},
+    {day:'Do',type:'gym', icon:'🏋️',label:'Kracht'},
+    {day:'Vr',type:'rest',icon:'😴',label:'Herstel'},
+    {day:'Za',type:'moto',icon:'🏍️',label:'Motordag'},
+    {day:'Zo',type:'moto',icon:'🏍️',label:'Motordag'},
+  ];
+  const WCOLS = {gym:'var(--purple)',run:'var(--blue)',moto:'var(--orange)',rest:'var(--text3)'};
+  const todayDow = today.getDay();
+  const weekEl = document.getElementById('weekOverview');
+  if(weekEl){
+    WEEK_SCHEMA.forEach((s,i)=>{
+      const dow = i===6?0:i+1;
+      const isToday = dow===todayDow;
+      const isPast = !isToday && ((todayDow>0&&dow<todayDow)||(todayDow===0&&dow>0));
+      weekEl.innerHTML+=`<div style="background:#fff;border:${isToday?'2px solid var(--orange)':'1px solid var(--border)'};border-top:3px solid ${WCOLS[s.type]};border-radius:var(--rs);padding:8px 4px;text-align:center;box-shadow:var(--shadow);opacity:${isPast?'0.55':'1'}">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:3px">${s.day}</div>
+        <div style="font-size:16px;margin-bottom:3px">${s.icon}</div>
+        <div style="font-size:9px;font-weight:600;color:${isToday?'var(--orange)':'var(--text2)'};line-height:1.3">${s.label}</div>
+        ${isToday?'<div style="font-size:8px;color:var(--orange);font-weight:700;margin-top:2px">VANDAAG</div>':''}
+        ${isPast?'<div style="width:6px;height:6px;border-radius:50%;background:var(--green);margin:4px auto 0"></div>':''}
+      </div>`;
+    });
+  }
 
 // ── AUTO LOAD ──
 loadAll();
